@@ -128,6 +128,7 @@ class PlacedBol:
     surface: str
     accent: str | None
     matra: int
+    variant: str = ""
     line: int = field(default=0, compare=False)
     column: int = field(default=0, compare=False)
 
@@ -200,16 +201,17 @@ def _place(
         return
 
     # A token may carry several bols (`dhage` -> dha, ge). They share the slot.
-    bols = lexicon.tokenize(node.text)
-    share = duration / len(bols)
-    for index, bol in enumerate(bols):
+    segments = lexicon.tokenize(node.text)
+    share = duration / len(segments)
+    for index, segment in enumerate(segments):
         out.append(
             PlacedBol(
                 pos=start + share * index,
                 duration=share,
-                surface=bol.name,
+                surface=segment.bol.name,
                 accent=node.accent,
                 matra=matra,
+                variant=segment.variant.name,
                 line=node.line,
                 column=node.column,
             )

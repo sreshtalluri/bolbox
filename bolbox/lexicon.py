@@ -120,6 +120,17 @@ class Bol:
         return any(v.verify for v in self.variants)
 
 
+VARIANT_SEP = "@"
+
+
+@dataclass(frozen=True)
+class Segment:
+    """One bol occurrence inside a token, with the realization chosen for it."""
+
+    bol: Bol
+    variant: Variant
+
+
 def _parse_variants(
     bol: str, raw: object, vocab: Vocabulary, source: str
 ) -> tuple[Variant, ...]:
@@ -316,8 +327,13 @@ class Lexicon:
 
     # -- tokenize -----------------------------------------------------------
 
-    def tokenize(self, token: str) -> tuple[Bol, ...]:
+    def tokenize(self, token: str) -> tuple[Segment, ...]:
         """Segment one whitespace-delimited token into bols by longest match.
+
+        A bol may be followed by `@name` to select a non-default realization.
+        The suffix binds to the bol match immediately before it and the scan
+        resumes after the variant name, which is unambiguous because `@` can
+        never appear inside a surface form.
 
         Raises TokenizeError naming the exact offset and substring that failed.
         Never drops characters and never guesses.
@@ -326,14 +342,40 @@ class Lexicon:
         if not text:
             raise TokenizeError(token, 0, "")
 
-        out: list[Bol] = []
+        out: list[Segment] = []
         i = 0
         while i < len(text):
             match = self._longest_at(text, i)
             if match is None:
                 raise TokenizeError(token, i, text[i:])
-            out.append(self.resolve(match))
+            bol = self.resolve(match)
             i += len(match)
+
+            variant_name = ""
+            if i < len(text) and text[i] == VARIANT_SEP:
+                start = i + 1
+                end = start
+                while end < len(text) and text[end].isalpha():
+                    end += 1
+                if end == start:
+                    raise TokenizeError(token, i, text[i:])
+                run = text[start:end]
+                # A trailing bol can immediately follow the variant name with
+                # no separator (`din@fullge` -> full, ge), so prefer the
+                # longest of THIS bol's own variant names that prefixes the
+                # alpha run over swallowing the whole run. If none of the
+                # bol's variants match, fall back to the full run so an
+                # unknown name (`din@edge`) still fails with that exact name
+                # rather than a truncated, misleading one.
+                known = sorted(
+                    (v.name for v in bol.variants if v.name and run.startswith(v.name)),
+                    key=len,
+                    reverse=True,
+                )
+                variant_name = known[0] if known else run
+                i = start + len(variant_name)
+
+            out.append(Segment(bol=bol, variant=bol.variant(variant_name)))
         return tuple(out)
 
     def _longest_at(self, text: str, start: int) -> str | None:
@@ -346,4 +388,4 @@ class Lexicon:
 
     def strokes_for(self, token: str) -> tuple[str, ...]:
         """Flat stroke sequence for a token. Convenience for tests and tooling."""
-        return tuple(s for bol in self.tokenize(token) for s in bol.strokes)
+        return tuple(s for seg in self.tokenize(token) for s in seg.variant.strokes)

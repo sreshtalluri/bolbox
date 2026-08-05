@@ -39,10 +39,10 @@ def test_tirakita_spellings_are_the_same_bol(lex: Lexicon) -> None:
 
 
 def test_tirakita_is_one_bol_of_four_strokes(lex: Lexicon) -> None:
-    bols = lex.tokenize("tirakita")
-    assert len(bols) == 1, "longest match must win over ti+ra+ki+ta"
-    assert len(bols[0].strokes) == 4
-    assert not bols[0].simultaneous, "the four strokes are sequential, not stacked"
+    segments = lex.tokenize("tirakita")
+    assert len(segments) == 1, "longest match must win over ti+ra+ki+ta"
+    assert len(segments[0].variant.strokes) == 4
+    assert not segments[0].variant.simultaneous, "the four strokes are sequential, not stacked"
 
 
 # -- composites -------------------------------------------------------------
@@ -67,21 +67,21 @@ def test_compound_occupies_one_slot_per_stroke(lex: Lexicon) -> None:
 
 def test_dhage_segments_into_two_bols(lex: Lexicon) -> None:
     """The worked example from FORMAT.md. `dhage` is one matra holding two bols."""
-    assert [b.name for b in lex.tokenize("dhage")] == ["dha", "ge"]
+    assert [s.bol.name for s in lex.tokenize("dhage")] == ["dha", "ge"]
 
 
 def test_tete_segments_into_two(lex: Lexicon) -> None:
-    assert [b.name for b in lex.tokenize("tete")] == ["te", "te"]
+    assert [s.bol.name for s in lex.tokenize("tete")] == ["te", "te"]
 
 
 def test_longest_match_beats_greedy_short_match(lex: Lexicon) -> None:
     """`dhin` must not be read as `dha`-ish prefix soup or as `dh` + `in`."""
-    assert [b.name for b in lex.tokenize("dhin")] == ["dhin"]
-    assert [b.name for b in lex.tokenize("dhindhin")] == ["dhin", "dhin"]
+    assert [s.bol.name for s in lex.tokenize("dhin")] == ["dhin"]
+    assert [s.bol.name for s in lex.tokenize("dhindhin")] == ["dhin", "dhin"]
 
 
 def test_tokenize_is_case_insensitive(lex: Lexicon) -> None:
-    assert [b.name for b in lex.tokenize("DhaGe")] == ["dha", "ge"]
+    assert [s.bol.name for s in lex.tokenize("DhaGe")] == ["dha", "ge"]
 
 
 def test_aliases_resolve_through_to_canonical(lex: Lexicon) -> None:
@@ -108,11 +108,11 @@ def test_empty_token_is_an_error(lex: Lexicon) -> None:
 def test_tokenize_never_drops_characters(lex: Lexicon) -> None:
     """Whatever segments, the concatenated surfaces must reconstruct the input."""
     for token in ("dhage", "tete", "tirakita", "dhindhin", "gena"):
-        bols = lex.tokenize(token)
+        segments = lex.tokenize(token)
         # Aliases can change spelling, so compare lengths of what was consumed
         # by walking the same longest-match path the tokenizer took.
-        assert bols, token
-        assert sum(len(b.name) for b in bols) <= len(token) + 4
+        assert segments, token
+        assert sum(len(s.bol.name) for s in segments) <= len(token) + 4
 
 
 # -- the single-source-of-truth link ---------------------------------------
@@ -295,3 +295,49 @@ def test_din_ships_with_two_realizations_both_flagged_for_verification(
     assert din.strokes == ("na",)
     assert all(v.verify for v in din.variants)
     assert din in lex.needs_verification
+
+
+# -- @variant notation ------------------------------------------------------
+
+
+def test_variant_suffix_selects_a_realization(vocab: Vocabulary) -> None:
+    segments = _lex(VARIANT_YAML, vocab).tokenize("din@full")
+    assert len(segments) == 1
+    assert segments[0].bol.name == "din"
+    assert segments[0].variant.name == "full"
+    assert segments[0].variant.strokes == ("ta",)
+
+
+def test_bare_bol_selects_the_default(vocab: Vocabulary) -> None:
+    segments = _lex(VARIANT_YAML, vocab).tokenize("din")
+    assert segments[0].variant.name == "kinar"
+
+
+def test_variant_binds_to_the_preceding_bol_in_a_multi_bol_token(
+    vocab: Vocabulary,
+) -> None:
+    """`dinge` is two bols in one matra. The suffix binds to the one before it."""
+    segments = _lex(VARIANT_YAML, vocab).tokenize("din@fullge")
+    assert [s.bol.name for s in segments] == ["din", "ge"]
+    assert [s.variant.name for s in segments] == ["full", ""]
+
+
+def test_unknown_variant_is_a_tokenize_failure_not_a_silent_default(
+    vocab: Vocabulary,
+) -> None:
+    """A typo'd variant that quietly played the default would be invisible."""
+    with pytest.raises((TokenizeError, LexiconError)) as exc:
+        _lex(VARIANT_YAML, vocab).tokenize("din@edge")
+    assert "edge" in str(exc.value)
+
+
+@pytest.mark.parametrize("bad", ["@full", "din@", "din@@full"])
+def test_malformed_variant_suffixes_fail_loudly(bad: str, vocab: Vocabulary) -> None:
+    with pytest.raises((TokenizeError, LexiconError)):
+        _lex(VARIANT_YAML, vocab).tokenize(bad)
+
+
+def test_strokes_for_follows_the_selected_variant(vocab: Vocabulary) -> None:
+    lex = _lex(VARIANT_YAML, vocab)
+    assert lex.strokes_for("din") == ("na",)
+    assert lex.strokes_for("din@full") == ("ta",)
