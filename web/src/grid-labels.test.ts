@@ -32,13 +32,46 @@ describe("bolLabels", () => {
     expect(labels.get(0)).toBe("dha");
   });
 
-  it("joins distinct bols that share a matra", () => {
+  it("keeps bol-starts at different positions within a matra as separate entries", () => {
     const labels = bolLabels([
       ev([0, 1], "ge", "dha", 0),
       ev([1, 2], "ge", "ge", 0),
     ]);
     expect(labels.get(0)).toBe("dha");
     expect(labels.get(0.5)).toBe("ge");
+  });
+
+  it("joins two distinct bols that start at the same position", () => {
+    const labels = bolLabels([
+      ev([0, 1], "ge", "dha", 0),
+      ev([0, 1], "ge", "ge", 0),
+    ]);
+    expect(labels.get(0)).toBe("dha ge");
+  });
+
+  it("does not duplicate a label already present at that position", () => {
+    // Same source_bol, both bol_offset 0, same position -- the dedup guard
+    // (`existing.split(" ").includes(label)`) must not double it.
+    const labels = bolLabels([
+      ev([0, 1], "ge", "dha", 0),
+      ev([0, 1], "ge", "dha", 0),
+    ]);
+    expect(labels.get(0)).toBe("dha");
+  });
+
+  it("keeps a compound intact when a distinct bol starts at the same position", () => {
+    // tirakita spans four positions but only its bol_offset 0 stroke survives
+    // the filter; a second bol striking at that same position must join it
+    // without swallowing or duplicating the compound.
+    const labels = bolLabels([
+      ev([0, 1], "te", "tirakita", 0),
+      ev([1, 4], "re", "tirakita", 1),
+      ev([1, 2], "ki", "tirakita", 2),
+      ev([3, 4], "ta", "tirakita", 3),
+      ev([0, 1], "ge", "ge", 0),
+    ]);
+    expect(labels.get(0)).toBe("tirakita ge");
+    expect([...labels.values()]).toEqual(["tirakita ge"]);
   });
 
   it("shows the variant so the grid reflects what was written", () => {
