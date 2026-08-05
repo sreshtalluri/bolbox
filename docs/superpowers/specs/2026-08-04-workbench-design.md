@@ -48,6 +48,9 @@ matters, because a data collection instrument only produces data if it gets used
 3. Record: guided (prompt shown, take auto-labelled with it) and free (record
    now, label later).
 4. Label: give an unlabelled take its bol text.
+5. Import (§7, built last): bring in drum samples, others' recitations, and
+   reference material from local files — one at a time or a soundpack at once —
+   with mandatory provenance, and assign them by ear rather than by guess.
 
 **Out, with reasons:**
 
@@ -133,6 +136,7 @@ worth protecting when new kinds are added.
 | `verify_bol` | a bol has `verify: true` on any variant | bol name, variants, strokes |
 | `verify_stroke` | a stroke has `verify: true` | stroke name, drum, damped |
 | `label_take` | a recording has `bols: ""` | recording id, duration |
+| `assign_sample` | an imported sample has no stroke assigned (§7) | sample id, source |
 
 **Authored tasks** live in `data/human-tasks.yaml`, for work no query can find —
 "deny the microphone permission and check the error reads clearly." Each has an
@@ -140,10 +144,12 @@ id, a title, a detail, and a `done` flag the workbench writes back.
 `docs/YOUR-TURN.md` §3 becomes this file's first entries; the rest of that
 document stays as prose, since narrative context is not a task.
 
-Adding a new derived kind later is one function returning `list[Task]`,
-registered in a list. `coverage` (a bol is under-represented in the dataset) and
-`missing_sample` (a kit lacks a sample for a vocabulary stroke) are the two
-obvious next ones and are explicitly not built now.
+Adding a new derived kind is one function returning `list[Task]`, registered in a
+list. `assign_sample` in §7 is the first exercise of that — it was not in the
+original design and cost one function, which is the property this model exists
+for. `coverage` (a bol is under-represented in the dataset) and `missing_sample`
+(a kit lacks a sample for a vocabulary stroke) are the next obvious ones and are
+explicitly not built now.
 
 ---
 
@@ -243,9 +249,89 @@ that no longer loads. Then it writes, then it reloads the server's singletons.
 - Task rendering and the merge of derived and authored tasks, as pure functions.
 - `playStroke` builds the right one-event plan for a given kit.
 
+**Import (§7):**
+- An import with no provenance is rejected. This is the test that keeps the
+  mandate real rather than aspirational.
+- A batch import applies one provenance record to every file in the pack.
+- Imported samples arrive unassigned, and each produces exactly one
+  `assign_sample` task; assigning one removes its task.
+- A recitation imported without a `speaker` defaults to `"self"`, and an
+  explicitly tagged one keeps its tag through storage and listing.
+- Destination is taken from the import request, never inferred from a filename —
+  asserted by importing a file named `na_01.wav` as a *recitation* and checking
+  it does not land in `kits/`.
+
 **End to end (Playwright, fake audio device):** open the workbench, confirm a
 flagged mapping, see the task disappear; record a guided take and see it listed
 with the prompt as its label.
+
+---
+
+## §7. Import — build after §0-§4
+
+Bringing in material from outside: soundpacks, other people's recitations, and
+reference performances. Sequenced last because verify, record and label are what
+unblock the recording session, and this is what makes the dataset grow past it.
+
+### Three destinations, never mixed
+
+| Material | Goes to | Fed to |
+|---|---|---|
+| **Drum samples** — struck strokes | `kits/<name>/` + `kit.json` | the sampler; changes how output sounds |
+| **Recitations** — someone saying bols | `data/recordings/` | the transcription model |
+| **Reference** — performances, lessons | `data/reference/` | nothing, ever. Consulted while verifying |
+
+Conflating the first two is the easiest mistake available here — both are "tabla
+audio" — and it is silent: a struck `na` in the training set teaches the model
+that the *sound of a drum* is the syllable `na`, which is the opposite of what it
+must learn. The destination is chosen explicitly at import and is not inferred
+from the file.
+
+### Local files only, single or batch
+
+Import accepts files from your disk: one at a time, or many at once (a folder or
+a zip — a soundpack). **No URL fetching.** Anything found online is a local file
+by the time you would import it, and fetching adds redirects, auth walls and
+pages-that-are-not-audio to debug in a tool with one user. Conversion to PCM WAV
+happens on import, so the store stays one format.
+
+### Import never guesses
+
+Files arrive **unassigned**. Import attaches provenance and nothing else — it does
+not read a filename and decide that `Na_01.wav` is the `na` stroke.
+
+This is deliberate and it is the lesson of `scripts/make_deolekar_kit.py`, which
+assigned samples by spectral measurement and still produced three mappings it
+could not confirm — `re`, `dha` and `dhun` carry `VERIFY` notes today because of
+it. A filename is weaker evidence than a spectrum, and the person who can settle
+it by ear is the one using this tool.
+
+So assignment becomes a task: **`assign_sample`**, one per unassigned import,
+showing the clip with a play button and the stroke vocabulary to file it under.
+A new derived kind in §2's model, which is what that model was shaped for.
+
+### Provenance is mandatory
+
+Every imported item records `source`, `license`, `attribution`, and
+`imported_at`. Not optional, not defaulted to empty.
+
+An unprovenanced dataset cannot be published, cannot be shared, and may not be
+usable at all — and provenance cannot be reconstructed from memory once a few
+hundred clips are in. The existing kit is the precedent: it ships a `LICENSE.txt`
+and a CC BY 4.0 attribution for the Zenodo dataset it came from. Bulk import is
+exactly where unprovenanced material would otherwise arrive at scale, so the
+batch flow asks once and applies to the whole pack.
+
+### Recordings gain a `speaker` field
+
+`RecordingMeta` gains `speaker`, defaulting to `"self"`.
+
+v1 is deliberately single-speaker: personalisation removes most of the variance a
+general model would need a large corpus to handle, which is what makes 30 minutes
+plausible. An imported recitation from someone else, landing untagged, would
+change what is being trained with no visible signal — you would learn about it
+from a bad model rather than from the data. Tagging keeps the training set
+filterable, so mixing speakers stays a decision rather than an accident.
 
 ---
 
