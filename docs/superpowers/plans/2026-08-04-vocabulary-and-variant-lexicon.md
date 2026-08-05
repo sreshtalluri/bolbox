@@ -608,6 +608,17 @@ class Segment:
 
 Replace `tokenize` and `strokes_for` with:
 
+> **CORRECTION (found during execution — the code below is wrong).** The variant-name
+> scan shown here consumes the whole run of alphabetic characters after `@`, which
+> makes this task's own `test_variant_binds_to_the_preceding_bol_in_a_multi_bol_token`
+> unpassable: for `din@fullge` it swallows `fullge` as the variant name instead of
+> reading `full` and resuming into `ge`. The shipped implementation instead matches the
+> alpha run against **the bol's own known variant names, longest first**, falling back
+> to the whole run when none match — so an unknown variant like `din@edge` still fails
+> loudly naming the typo. See `bolbox/lexicon.py` as built, and the regression test
+> `test_variant_suffix_prefers_the_longest_matching_variant_name`, which fails if the
+> longest-first sort is reversed.
+
 ```python
     def tokenize(self, token: str) -> tuple[Segment, ...]:
         """Segment one whitespace-delimited token into bols by longest match.
