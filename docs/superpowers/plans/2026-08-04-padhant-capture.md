@@ -1026,7 +1026,17 @@ take is the failure that would teach you not to trust this tool."
 
 ---
 
-### Task 5: Record mode
+### Task 5: Record mode — SUPERSEDED, DO NOT BUILD
+
+> **This task is replaced by the workbench.** Record mode moved out of the
+> composition app and into a separate local page, where it gains prompts and
+> automatic labelling — see
+> `docs/superpowers/specs/2026-08-04-workbench-design.md` §4. Recording is human
+> work, and the workbench is where human work lives; a mode toggle in the
+> composition app would have put a chore next to the instrument.
+>
+> **Tasks 1-4 above are unchanged and are still the engine.** Build them, then
+> build the workbench. The text below is kept only so the decision is legible.
 
 **Files:**
 - Modify: `web/index.html`, `web/src/main.ts`
