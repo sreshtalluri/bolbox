@@ -10,6 +10,7 @@
 
 import { ApiError, listKits, loadSamplePattern, parsePattern, requestMidi } from "./api";
 import { downloadBlob, renderPatternToWav, safeFilename } from "./export";
+import { bolLabels } from "./grid-labels";
 import { Kit, KitError, loadKit, makeSynthKit } from "./kit";
 import { Player } from "./player";
 import { getTal, khaliMatras, vibhagStarts } from "./tal";
@@ -134,23 +135,7 @@ function renderPatternView(p: PatternJSON): void {
     ),
   );
 
-  // Bols by matra. One entry per BOL, not per stroke and not per position --
-  // the same rule midi.py stamps its text events by. `bol_offset === 0` is the
-  // stroke that starts a bol, which collapses both shapes a bol can take: a
-  // composite `dha` is one word across two strokes at ONE position, and a
-  // compound `tirakita` is one word across four DIFFERENT positions. Keying on
-  // position alone only collapses the first, so `tirakita` rendered four times.
-  const bols = new Map<number, string>();
-  for (const e of p.events) {
-    if ((e.bol_offset ?? 0) !== 0) continue;
-    const den = e.pos[1] === 0 ? 1 : e.pos[1];
-    const m = e.pos[0] / den;
-    const label = e.source_bol || e.stroke;
-    const existing = bols.get(m);
-    // Off-grid positions (tuplets) still get a cell on their matra, joined.
-    if (existing === undefined) bols.set(m, label);
-    else if (!existing.split(" ").includes(label)) bols.set(m, `${existing} ${label}`);
-  }
+  const bols = bolLabels(p.events);
 
   dom.grid.innerHTML = "";
   matraCells = [];
