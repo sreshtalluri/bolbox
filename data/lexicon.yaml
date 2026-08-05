@@ -71,6 +71,28 @@ bols:
       VERIFY -- open bayan with the open centre dayan stroke. Less standard than
       dha/dhin and spelled inconsistently across traditions.
 
+  # --- variants: one syllable, several possible strokes --------------------
+  # A bol with more than one physical realization. You say these identically
+  # whichever way you play them, so the recitation carries no information about
+  # which was meant -- and neither will the transcription model. The choice is
+  # a rendering decision, defaulted here and overridable in the notation with
+  # `din@full`.
+
+  din:
+    variants:
+      kinar:
+        strokes: [na]
+        default: true
+        verify: true
+        description: >
+          VERIFY -- one finger striking the edge, for the open ringing sound.
+          Marked default because it is the more common reading; confirm both
+          the choice of default and the stroke by playing them.
+      full:
+        strokes: [ta]
+        verify: true
+        description: VERIFY -- full hand on the drum.
+
   # --- compound: one word, sequential strokes sharing one matra ------------
 
   tirakita:

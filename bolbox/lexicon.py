@@ -37,12 +37,16 @@ DEFAULT_LEXICON_PATH = Path(__file__).resolve().parent.parent / "data" / "lexico
 
 
 @dataclass(frozen=True)
-class Bol:
-    """One spoken syllable or word, and the strokes it produces.
+class Variant:
+    """One physical realization of a bol.
 
-    ``simultaneous`` is the load-bearing flag. When true the strokes sound on the
-    same instant (``dha`` = ``ge`` + ``na``) and MIDI emits them on one tick.
-    When false they are sequential and divide the bol's share of the matra.
+    This holds what `Bol` used to hold. It exists because a bol does not have
+    *a* realization -- `din` is struck full-handed or with one finger on the
+    edge, and you SAY it identically either way. The choice is not in the audio,
+    so it cannot be the acoustic model's problem; it is a rendering decision
+    that lives here and is overridable in the notation.
+
+    ``name`` is `""` for the implicit default of a bare `strokes:` entry.
     """
 
     name: str
@@ -57,12 +61,133 @@ class Bol:
 
     @property
     def slot_count(self) -> int:
-        """How many sequential sub-slots this bol occupies within its share.
-
-        A composite is one slot no matter how many strokes it stacks; a compound
-        is one slot per stroke.
-        """
+        """How many sequential sub-slots this realization occupies."""
         return 1 if self.simultaneous else len(self.strokes)
+
+
+@dataclass(frozen=True)
+class Bol:
+    """One spoken syllable or word, and the realizations it can take.
+
+    ``variants`` is ordered with the default first. The strokes/simultaneous
+    properties delegate to it, which is what lets grid.py, midi.py and every
+    existing test keep working untouched.
+    """
+
+    name: str
+    variants: tuple[Variant, ...]
+
+    @property
+    def default(self) -> Variant:
+        return self.variants[0]
+
+    def variant(self, name: str) -> Variant:
+        if not name:
+            return self.default
+        for candidate in self.variants:
+            if candidate.name == name:
+                return candidate
+        known = ", ".join(v.name for v in self.variants if v.name) or "(none)"
+        raise LexiconError(
+            f"bol {self.name!r} has no variant {name!r}; known variants: {known}"
+        )
+
+    # -- delegating to the default ----------------------------------------
+
+    @property
+    def strokes(self) -> tuple[str, ...]:
+        return self.default.strokes
+
+    @property
+    def simultaneous(self) -> bool:
+        return self.default.simultaneous
+
+    @property
+    def is_composite(self) -> bool:
+        return self.default.is_composite
+
+    @property
+    def slot_count(self) -> int:
+        return self.default.slot_count
+
+    @property
+    def description(self) -> str:
+        return self.default.description
+
+    @property
+    def verify(self) -> bool:
+        """True if ANY realization needs a player's ear."""
+        return any(v.verify for v in self.variants)
+
+
+def _parse_variants(
+    bol: str, raw: object, vocab: Vocabulary, source: str
+) -> tuple[Variant, ...]:
+    """Parse a `variants:` mapping. Exactly one entry must be the default.
+
+    The default is returned FIRST, because every delegating property on `Bol`
+    reads `variants[0]`.
+    """
+    if not isinstance(raw, dict) or not raw:
+        raise LexiconError(f"{source}: bol {bol!r} `variants` must be a non-empty mapping")
+
+    parsed: list[Variant] = []
+    defaults: list[str] = []
+    for name, body in raw.items():
+        if not isinstance(name, str) or not name:
+            raise LexiconError(f"{source}: bol {bol!r} has an empty variant name")
+        if name != name.lower():
+            raise LexiconError(
+                f"{source}: bol {bol!r} variant {name!r} must be lowercase"
+            )
+        if "@" in name or any(c.isspace() for c in name):
+            raise LexiconError(
+                f"{source}: bol {bol!r} variant {name!r} may not contain "
+                "'@' or whitespace -- '@' is the notation's variant separator"
+            )
+        if not isinstance(body, dict):
+            raise LexiconError(
+                f"{source}: bol {bol!r} variant {name!r} must map to a mapping"
+            )
+        if body.get("default"):
+            defaults.append(name)
+        parsed.append(_parse_variant(bol, name, body, vocab, source))
+
+    if len(defaults) != 1:
+        raise LexiconError(
+            f"{source}: bol {bol!r} must mark exactly one variant `default: true`; "
+            f"found {len(defaults)} ({', '.join(defaults) or 'none'})"
+        )
+
+    ordered = sorted(parsed, key=lambda v: v.name != defaults[0])
+    return tuple(ordered)
+
+
+def _parse_variant(
+    bol: str, name: str, body: dict, vocab: Vocabulary, source: str
+) -> Variant:
+    where = f"{source}: bol {bol!r}" + (f" variant {name!r}" if name else "")
+
+    strokes = body.get("strokes")
+    if not isinstance(strokes, list) or not strokes:
+        raise LexiconError(f"{where} needs a non-empty `strokes`")
+    if not all(isinstance(s, str) for s in strokes):
+        raise LexiconError(f"{where} strokes must be strings")
+
+    # The single-source-of-truth check: every target must be a real stroke.
+    vocab.require(strokes, source=where)
+
+    simultaneous = bool(body.get("simultaneous", False))
+    if simultaneous and len(strokes) < 2:
+        raise LexiconError(f"{where} is marked simultaneous but has one stroke")
+
+    return Variant(
+        name=name,
+        strokes=tuple(s.lower() for s in strokes),
+        simultaneous=simultaneous,
+        description=str(body.get("description", "")).strip(),
+        verify=bool(body.get("verify", False)),
+    )
 
 
 class Lexicon:
@@ -117,28 +242,20 @@ class Lexicon:
             if not isinstance(body, dict):
                 raise LexiconError(f"{source}: bol {name!r} must map to a mapping")
 
-            strokes = body.get("strokes")
-            if not isinstance(strokes, list) or not strokes:
-                raise LexiconError(f"{source}: bol {name!r} needs a non-empty `strokes`")
-            if not all(isinstance(s, str) for s in strokes):
-                raise LexiconError(f"{source}: bol {name!r} strokes must be strings")
-
-            # The single-source-of-truth check: every target must be a real stroke.
-            vocab.require(strokes, source=f"{source}: bol {name!r}")
-
-            simultaneous = bool(body.get("simultaneous", False))
-            if simultaneous and len(strokes) < 2:
+            has_strokes = "strokes" in body
+            has_variants = "variants" in body
+            if has_strokes and has_variants:
                 raise LexiconError(
-                    f"{source}: bol {name!r} is marked simultaneous but has one stroke"
+                    f"{source}: bol {name!r} declares both `strokes` and "
+                    "`variants`; use one or the other"
                 )
 
-            bols[name] = Bol(
-                name=name,
-                strokes=tuple(s.lower() for s in strokes),
-                simultaneous=simultaneous,
-                description=str(body.get("description", "")).strip(),
-                verify=bool(body.get("verify", False)),
-            )
+            if has_variants:
+                variants = _parse_variants(name, body["variants"], vocab, source)
+            else:
+                variants = (_parse_variant(name, "", body, vocab, source),)
+
+            bols[name] = Bol(name=name, variants=variants)
 
         raw_aliases = raw.get("aliases") or {}
         if not isinstance(raw_aliases, dict):

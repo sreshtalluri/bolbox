@@ -209,3 +209,89 @@ def test_tha_and_na_keep_their_own_source_bol_through_the_grid() -> None:
     ))
     assert [e.source_bol for e in pattern.events[:2]] == ["tha", "na"]
     assert [e.stroke for e in pattern.events[:2]] == ["na", "na"]
+
+
+# -- variants ---------------------------------------------------------------
+
+VARIANT_YAML = """
+version: 1
+bols:
+  ge:  { strokes: [ge] }
+  din:
+    variants:
+      kinar: { strokes: [na], default: true }
+      full:  { strokes: [ta] }
+"""
+
+
+def _lex(text: str, vocab: Vocabulary) -> Lexicon:
+    return Lexicon.from_dict(yaml.safe_load(text), vocab, source="<test>")
+
+
+def test_bare_strokes_becomes_one_unnamed_default_variant(vocab: Vocabulary) -> None:
+    """Existing entries keep working. This is what makes the change additive."""
+    bol = _lex(VARIANT_YAML, vocab).resolve("ge")
+    assert len(bol.variants) == 1
+    assert bol.variants[0].name == ""
+    assert bol.strokes == ("ge",)          # delegates to the default
+    assert bol.simultaneous is False
+
+
+def test_default_variant_is_first_and_drives_the_delegating_properties(
+    vocab: Vocabulary,
+) -> None:
+    bol = _lex(VARIANT_YAML, vocab).resolve("din")
+    assert [v.name for v in bol.variants] == ["kinar", "full"]
+    assert bol.default.name == "kinar"
+    assert bol.strokes == ("na",)          # NOT ("ta",)
+    assert bol.variant("").strokes == ("na",)
+    assert bol.variant("full").strokes == ("ta",)
+
+
+def test_unknown_variant_names_the_ones_that_exist(vocab: Vocabulary) -> None:
+    bol = _lex(VARIANT_YAML, vocab).resolve("din")
+    with pytest.raises(LexiconError) as exc:
+        bol.variant("edge")
+    assert "edge" in str(exc.value)
+    assert "kinar" in str(exc.value)       # tells you what IS available
+
+
+@pytest.mark.parametrize(
+    "body, expected",
+    [
+        ("{ strokes: [ge], variants: { a: { strokes: [ka] } } }", "both"),
+        ("{ variants: { a: { strokes: [ka] }, b: { strokes: [ge] } } }", "default"),
+        ("{ variants: { a: { strokes: [ka], default: true },"
+         "              b: { strokes: [ge], default: true } } }", "default"),
+        ("{ variants: {} }", "non-empty"),
+        ("{ variants: { 'a@b': { strokes: [ka], default: true } } }", "@"),
+        ("{ variants: { 'A': { strokes: [ka], default: true } } }", "lowercase"),
+    ],
+)
+def test_malformed_variant_entries_are_rejected(
+    body: str, expected: str, vocab: Vocabulary
+) -> None:
+    text = f"version: 1\nbols:\n  x: {body}\n"
+    with pytest.raises(LexiconError) as exc:
+        _lex(text, vocab)
+    assert expected in str(exc.value)
+
+
+def test_every_shipped_bol_still_loads(lex: Lexicon) -> None:
+    """The real lexicon, through the new loader. Guards the migration."""
+    for bol in lex:
+        assert bol.variants, bol.name
+        assert bol.default is bol.variants[0]
+        assert bol.strokes == bol.default.strokes
+
+
+def test_din_ships_with_two_realizations_both_flagged_for_verification(
+    lex: Lexicon,
+) -> None:
+    """The motivating case. Strokes are inferences until played -- hence verify."""
+    din = lex.resolve("din")
+    assert [v.name for v in din.variants] == ["kinar", "full"]
+    assert din.default.name == "kinar"
+    assert din.strokes == ("na",)
+    assert all(v.verify for v in din.variants)
+    assert din in lex.needs_verification
