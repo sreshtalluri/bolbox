@@ -688,6 +688,17 @@ class PlacedBol:
 
 Then replace the tail of `_place` (lines 202-216):
 
+> **CORRECTION (found during execution).** `variant=segment.variant.name` below is
+> incomplete: a bol's default variant can have a *name*. `din`'s default is named
+> `kinar`, so plain `din` records `variant="kinar"` rather than `""` — contradicting
+> Task 5's tests and the documented contract that `""` means "the default was used".
+> Left uncorrected it would also make plain `din` render as `din@kinar` in the grid, a
+> syllable nobody typed. The shipped `_place` normalizes to `""` when the resolved
+> variant *is* the bol's default (identity check — `Bol.variant("")` and
+> `Bol.variant("kinar")` return the same object, so an explicitly written `din@kinar`
+> normalizes too, losing nothing because the notation round-trips through
+> `Token.text`, not through `PlacedBol`).
+
 ```python
     # A token may carry several bols (`dhage` -> dha, ge). They share the slot.
     segments = lexicon.tokenize(node.text)
