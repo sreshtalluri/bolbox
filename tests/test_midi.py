@@ -163,6 +163,17 @@ def test_text_events_use_the_canonical_spelling() -> None:
     assert "tirakita" in [m.text for m in messages(pattern, "text")]
 
 
+def test_text_event_carries_a_non_default_variant() -> None:
+    """`din` and `din@full` are different sounds -- the text meta must not
+    collapse them to the same word, matching the rule cli.py and
+    grid-labels.ts both apply.
+    """
+    pattern = pattern_for("din@full")
+    texts = [m.text for m in messages(pattern, "text")]
+    assert "din@full" in texts
+    assert "din" not in texts
+
+
 # -- rounding: the one boundary where exactness ends -----------------------
 
 

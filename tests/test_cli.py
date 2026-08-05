@@ -76,6 +76,24 @@ def test_show_prints_the_grid(capsys) -> None:
     assert "dha" in out
 
 
+def test_show_labels_a_non_default_variant_distinctly(tmp_path, capsys) -> None:
+    """`din` and `din@full` are different sounds; `show` must not print one label
+    for both -- the same rule the browser grid applies in grid-labels.ts.
+    """
+    path = tmp_path / "variant.txt"
+    path.write_text(
+        "tal: tintal\nlay: 120\n\n"
+        "din din@full " + "dha " * 14 + "\n"
+    )
+    assert main(["show", str(path)]) == 0
+    out = capsys.readouterr().out
+    assert "din@full" in out
+    lines = [line for line in out.splitlines() if "din" in line]
+    assert any(line.strip().endswith("din") for line in lines), (
+        "the default-variant din should still print as bare 'din'"
+    )
+
+
 def test_show_marks_positions_off_the_matra(capsys) -> None:
     """A compound's inner strokes are not on a matra and must not look like they are."""
     import pathlib

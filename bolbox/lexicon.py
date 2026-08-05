@@ -347,6 +347,14 @@ class Lexicon:
         resumes after the variant name, which is unambiguous because `@` can
         never appear inside a surface form.
 
+        The variant name itself is resolved by the same LONGEST MATCH rule as
+        bol surfaces, scanned against that bol's own variant names: if a bol
+        ever had variants `ka` and `kana`, `x@kana` resolves to `kana`, not
+        `ka` followed by a trailing `na`. Only if none of the bol's variant
+        names prefix the alpha run does the whole run get used as-is, so an
+        unknown name like `din@edge` still fails with that exact name rather
+        than a truncated, misleading one.
+
         Raises TokenizeError naming the exact offset and substring that failed.
         Never drops characters and never guesses.
         """

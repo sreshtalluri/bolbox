@@ -87,7 +87,10 @@ def cmd_show(args: argparse.Namespace) -> int:
         within = pos - int(pos)
         marker = "|" if within == 0 else " "
         strokes = "+".join(e.stroke for e in group)
-        bol = group[0].source_bol
+        head = group[0]
+        # `din` and `din@full` are different sounds -- same rule as
+        # web/src/grid-labels.ts, so `show` does not lie about which was struck.
+        bol = f"{head.source_bol}@{head.variant}" if head.variant else head.source_bol
         offset = f"+{within}" if within else ""
         print(f"{marker} {matra:>2}{offset:<6} {strokes:<12} {bol}")
     return 0

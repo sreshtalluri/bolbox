@@ -133,10 +133,17 @@ def build(pattern: Pattern, kit: KitLike | None = None) -> mido.MidiFile:
         # composite `dha` is one word across two notes; a compound `tirakita` is
         # one word across four positions. `bol_offset == 0` is the stroke that
         # starts a bol, so keying on it stamps each word exactly once.
-        for bol in dict.fromkeys(
-            e.source_bol for e in group if e.source_bol and e.bol_offset == 0
+        #
+        # The text carries the REALIZATION, not just the recited syllable: a
+        # non-default variant is stamped `din@full`, not `din`. Same rule as
+        # cli.py's `show` and web/src/grid-labels.ts -- one display convention
+        # everywhere beats three renderers disagreeing, and it is what keeps a
+        # future re-import from reading `din@full` back as plain `din`.
+        for bol, variant in dict.fromkeys(
+            (e.source_bol, e.variant) for e in group if e.source_bol and e.bol_offset == 0
         ):
-            emit(tick, 0, mido.MetaMessage("text", text=bol))
+            text = f"{bol}@{variant}" if variant else bol
+            emit(tick, 0, mido.MetaMessage("text", text=text))
 
         for event in group:
             note = note_for(event.stroke, kit)

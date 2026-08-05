@@ -103,7 +103,10 @@ din@full!    composes with accents; the accent stays outermost
 ```
 
 The suffix binds to the bol immediately before it, so in a multi-bol token
-`din@fullge` is `din` (full) followed by `ge` (default).
+`din@fullge` is `din` (full) followed by `ge` (default). The variant name
+itself is resolved by the same longest-match rule as bol surfaces, scanned
+against that bol's own variant names -- so if a bol had variants `ka` and
+`kana`, `x@kana` would resolve to `kana`, not `ka` followed by a trailing `na`.
 
 An unknown variant name is a parse error at the column you typed it. It never
 falls back to the default — a typo that silently played the default would be
@@ -209,9 +212,10 @@ header      := ( key ":" value newline )+
 body        := ( avartan | comment | blank )+
 avartan     := element+ ( "|" element+ )*
 element     := bol | rest | group
-bol         := surface accent?
+bol         := surface variant? accent?
 surface     := [a-zA-Z]+          ; segmented by longest match on the lexicon
-accent      := "!" | "."
+variant     := "@" [a-z]+         ; binds to the surface immediately before it
+accent      := "!" | "."          ; the accent stays outermost, after any variant
 rest        := "-"
 group       := "{" integer "," element+ "}"
 comment     := "#" .*

@@ -184,7 +184,7 @@ class Pattern:
                 velocity=int(e.get("velocity", 100)),
                 source_bol=e.get("source_bol", ""),
                 bol_offset=int(e.get("bol_offset", 0)),
-                variant=str(e.get("variant", "")),
+                variant=str(e.get("variant") or ""),
             )
             for e in raw.get("events", [])
         )

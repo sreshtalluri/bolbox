@@ -147,9 +147,11 @@ closed-bayan stroke.
 Two dataset classes are deliberately unused, with reasons recorded in
 `scripts/make_deolekar_kit.py`. The interesting one is `Di`: despite the name it
 has under 2% of its energy below 200 Hz, so there is no bayan in it. It is a
-`din`, not a `dhin`, and it cannot be a composite. bolbox has no `din` bol, and
-adding one to consume a sample would be the vocabulary following the dataset
-instead of the instrument.
+`din`, not a `dhin`, and it cannot be a composite. It was left out when bolbox
+had no `din` bol. bolbox has one now (`data/lexicon.yaml`, realizations `kinar`
+and `full`) — added because the instrument has it, not to consume this sample —
+so wiring `Di` in as a `din` realization is open work, gated on the `din`
+variants losing their `verify` flags.
 
 Recording your own tabla is still the highest-value thing you can do for how this
 sounds — six or more round robins per stroke, a genuinely struck `dha`, a real

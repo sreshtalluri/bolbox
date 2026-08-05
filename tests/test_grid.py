@@ -228,6 +228,19 @@ def test_events_without_a_variant_key_still_load() -> None:
     assert Pattern.from_dict(payload).events[0].variant == ""
 
 
+def test_json_null_variant_loads_as_empty_not_the_string_none() -> None:
+    """`str(e.get("variant", ""))` turns a JSON `null` into the string "None",
+    which would later render as `din@None` in the grid. `null` must mean "no
+    variant chosen", same as a missing key.
+    """
+    payload = grid(parse(
+        "tal: tintal\nlay: 120\n\ndha - - - | - - - - | - - - - | - - - -\n"
+    )).to_dict()
+    for event in payload["events"]:
+        event["variant"] = None
+    assert Pattern.from_dict(payload).events[0].variant == ""
+
+
 _MULTI_STROKE_VARIANT_YAML = """
 version: 1
 bols:
