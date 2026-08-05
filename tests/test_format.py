@@ -231,9 +231,13 @@ def test_comments_and_blank_lines_are_ignored(lex: Lexicon) -> None:
 
 # `din@full` must survive the round trip exactly, same as any other token: the
 # variant rides inside Token.text, so this asserts the parser neither drops nor
-# normalises it -- which is exactly what a naive word regex would do. `tha` is
-# here because it shares a stroke with `na`, so a bug that canonicalised bols to
-# their strokes would show up as a round-trip failure rather than silently.
+# normalises it -- which is exactly what a naive word regex would do. Both
+# `din` variants (`kinar`, `full`) have exactly one stroke each, so this
+# property exercises token-level round-tripping and matra tiling, not
+# variant-driven stroke subdivision within a matra -- that split happens in
+# bolbox/grid.py and is not covered here. `tha` is here because it shares a
+# stroke with `na`, so a bug that canonicalised bols to their strokes would
+# show up as a round-trip failure rather than silently.
 SAFE_BOLS = [
     "dha", "dhin", "ta", "tha", "na", "ti", "te", "re", "ki", "ka", "ge",
     "tirakita", "din", "din@full",
@@ -366,3 +370,29 @@ def test_unknown_variant_is_reported_at_the_column_you_typed_it() -> None:
         parse(text)
     assert exc.value.line == 4
     assert "edge" in str(exc.value)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        "@ " + "dha " * 15,
+        "{2, @ ge} " + "dha " * 15,
+        "din@ " + "dha " * 15,
+        "din@@full " + "dha " * 15,
+    ],
+    ids=["bare-at", "at-in-group", "trailing-separator", "doubled-separator"],
+)
+def test_malformed_variant_shapes_are_positioned_parse_errors(
+    lex: Lexicon, body: str
+) -> None:
+    """Widening `_WORD_RE` to admit '@' lets these malformed shapes reach
+    `lexicon.tokenize` instead of being rejected by the regex itself. They
+    must still surface as a positioned `ParseError` -- not escape uncaught as
+    a `LexiconError` or `TokenizeError` -- so a future change to the regex or
+    the variant scan that broke this would fail a test, not just a future
+    composition file.
+    """
+    with pytest.raises(ParseError) as exc:
+        parse(header(body), lexicon=lex)
+    assert exc.value.line >= 1
+    assert exc.value.column >= 1
