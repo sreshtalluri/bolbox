@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>bolbox</title>
+    <style>
+      :root {
+        --bg: #14120f;
+        --panel: #1e1b17;
+        --line: #35302a;
+        --ink: #ece5d8;
+        --dim: #8c8377;
+        --accent: #d9a441;
+        --khali: #6f8fa8;
+        --bad: #e06a5a;
+        color-scheme: dark;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 1.5rem;
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.5 ui-sans-serif, system-ui, sans-serif;
+      }
+      main { max-width: 60rem; margin: 0 auto; display: grid; gap: 1rem; }
+      h1 { font-size: 1.2rem; margin: 0; letter-spacing: 0.08em; text-transform: lowercase; }
+      h1 span { color: var(--dim); font-weight: 400; margin-left: 0.6rem; letter-spacing: 0; text-transform: none; }
+      .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 1rem; }
+      textarea {
+        width: 100%; min-height: 7rem; resize: vertical;
+        background: #100e0c; color: var(--ink);
+        border: 1px solid var(--line); border-radius: 4px; padding: 0.7rem;
+        font: 14px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+      button {
+        background: #2b2620; color: var(--ink); border: 1px solid var(--line);
+        border-radius: 4px; padding: 0.45rem 0.9rem; font: inherit; cursor: pointer;
+      }
+      button:hover:not(:disabled) { border-color: var(--accent); }
+      button:disabled { opacity: 0.45; cursor: default; }
+      button.primary { background: var(--accent); color: #191512; border-color: var(--accent); font-weight: 600; }
+      select { background: #100e0c; color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; font: inherit; }
+      label { color: var(--dim); font-size: 0.85rem; }
+      input[type="range"] { width: 14rem; accent-color: var(--accent); }
+      #lay-value { font-variant-numeric: tabular-nums; color: var(--ink); min-width: 8.5rem; display: inline-block; }
+
+      #tal-display { color: var(--dim); font-size: 0.85rem; }
+      #tal-display b { color: var(--ink); font-weight: 600; }
+
+      #grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .vibhag { display: flex; gap: 2px; padding-right: 0.5rem; border-right: 1px solid var(--line); }
+      .vibhag:last-child { border-right: none; }
+      .matra {
+        min-width: 3.6rem; padding: 0.4rem 0.3rem; text-align: center;
+        background: #100e0c; border: 1px solid transparent; border-radius: 3px;
+        font: 13px/1.3 ui-monospace, Menlo, monospace;
+      }
+      .matra.khali { color: var(--khali); }
+      .matra.sam { color: var(--accent); font-weight: 700; }
+      .matra.on { border-color: var(--accent); background: #2a2318; }
+      .matra .mark { display: block; font-size: 10px; color: var(--dim); }
+
+      #errors { display: none; white-space: pre-wrap; border-color: var(--bad); color: var(--ink); }
+      #errors.visible { display: block; }
+      #errors .where { color: var(--bad); font-weight: 600; }
+      #errors pre { margin: 0.5rem 0 0; font: 13px/1.5 ui-monospace, Menlo, monospace; color: var(--dim); }
+      #status { color: var(--dim); font-size: 0.85rem; min-height: 1.4em; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>bolbox <span id="pattern-title"></span></h1>
+
+      <section class="panel">
+        <label for="bol-text">composition</label>
+        <textarea
+          id="bol-text"
+          spellcheck="false"
+          aria-label="bol text"
+        >title: tintal theka
+tal: tintal
+lay: 120
+
+dha dhin dhin dha | dha dhin dhin dha | na tin tin ta | ta dhin dhin dha</textarea>
+        <div class="row" style="margin-top: 0.75rem">
+          <button id="parse" class="primary">Parse</button>
+          <button id="load-sample">Load sample</button>
+          <span id="status" data-testid="status"></span>
+        </div>
+      </section>
+
+      <section class="panel" id="errors" role="alert" aria-live="assertive" data-testid="errors"></section>
+
+      <section class="panel">
+        <div id="tal-display" data-testid="tal-display"></div>
+        <div id="grid" data-testid="grid" style="margin-top: 0.75rem"></div>
+      </section>
+
+      <section class="panel">
+        <div class="row">
+          <label for="lay">lay</label>
+          <input id="lay" type="range" min="20" max="600" step="1" value="120" />
+          <span id="lay-value" data-testid="lay-value">120 matras/min</span>
+        </div>
+        <div class="row" style="margin-top: 0.9rem">
+          <button id="play">Play</button>
+          <button id="stop" disabled>Stop</button>
+          <label for="kit">kit</label>
+          <select id="kit" aria-label="kit"></select>
+          <button id="download-mid">Download .mid</button>
+          <button id="download-wav">Download .wav</button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

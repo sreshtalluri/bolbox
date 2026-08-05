@@ -1,0 +1,12 @@
+tal: tintal
+lay: 120
+title: Tintal theka
+source: Standard. The reference cycle every other file is checked against.
+
+# The basic theka. Sixteen matras, four vibhags of four.
+# Sam is matra 1. The third vibhag is khali -- the bayan lifts, so `dhin`
+# becomes `tin` and `dha` becomes `ta`. The parser knows the khali vibhag from
+# the tal definition and drops velocity there automatically; the bol change
+# here is the musical one, written out because that is how it is played.
+
+dha  dhin dhin dha  | dha  dhin dhin dha  | dha  tin  tin  ta   | ta   dhin dhin dha

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bolbox"
+version = "0.1.0"
+description = "Turn spoken tabla bols into playable percussion"
+requires-python = ">=3.11"
+dependencies = [
+    "PyYAML>=6.0",
+    "mido>=1.3",
+    "numpy>=1.26",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "hypothesis>=6.100",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+bolbox = "bolbox.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["bolbox*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

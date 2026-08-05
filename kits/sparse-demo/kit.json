@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "name": "sparse-demo",
+  "description": "Four sample sets covering the whole stroke vocabulary through alias_of. Proves the many-to-one path and gives the tests a real sparse fixture.",
+  "sample_rate_policy": "resample_on_load",
+  "strokes": {
+    "ge": {
+      "samples": [
+        "ge_rr1.wav",
+        "ge_rr2.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "ka": {
+      "samples": [
+        "ka_rr1.wav",
+        "ka_rr2.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "na": {
+      "samples": [
+        "na_rr1.wav",
+        "na_rr2.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "te": {
+      "samples": [
+        "te_rr1.wav",
+        "te_rr2.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "ki": {
+      "alias_of": "ka"
+    },
+    "tin": {
+      "alias_of": "na"
+    },
+    "tun": {
+      "alias_of": "na"
+    },
+    "ta": {
+      "alias_of": "na"
+    },
+    "ti": {
+      "alias_of": "te"
+    },
+    "re": {
+      "alias_of": "ti"
+    }
+  },
+  "midi_map": {
+    "ge": 36,
+    "ka": 37
+  }
+}

@@ -1,0 +1,35 @@
+tal: tintal
+lay: 100
+title: Format feature demonstration
+source: >
+  NOT a traditional composition. Constructed to exercise every feature of the
+  format so the parser has something real to chew on. Sreshta -- replace this
+  with actual kaidas from your own books; this file exists to prove the format
+  works, not to be played.
+
+# 1. Plain bols, one per matra.
+dha  dhin dhin dha  | dha  dhin dhin dha  | dha  tin  tin  ta   | ta   dhin dhin dha
+
+# 2. A compound bol filling one matra. `tirakita` is four strokes in the space
+#    of one `dha`. This is the case the whole project is organised around.
+dha  tirakita dhin na   | dha  tirakita dhin na   | ta   tirakita tin  na   | ta   tirakita dhin dha
+
+# 3. Explicit grouping. `{2, ti ra}` is the same duration as one bol, split.
+#    Equivalent to writing a two-stroke compound, but spelled out.
+dha  {2, ti ra}  dhin na   | dha  {2, ti ra}  dhin na   | ta   {2, ti ra}  tin  na   | ta   {2, ti ra}  dhin dha
+
+# 4. Nested groups. First half of the matra is `dha`, second half is four
+#    strokes -- so those four land at 1/2, 5/8, 3/4 and 7/8 of the matra.
+dha  {2, dha {4, te re ki ta}}  dhin na   | dha  dhin dhin dha  | ta   tin  tin  ta   | ta   dhin dhin dha
+
+# 5. Rests, and a seven-way group. Seven does not divide the MIDI tick grid
+#    evenly, which is exactly why positions are exact fractions internally.
+dha  -    dha  -    | {7, ta ki ta ta ki ta ka}  dha  dhin na   | ta   -    tin  -    | ta   dhin dhin dha
+
+# 6. Accents. `!` is an accent, `.` is a ghost note. These override the
+#    positional default rather than stacking with it.
+dha! dhin dhin dha. | dha  dhin dhin dha  | ta   tin  tin  ta   | ta   dhin dhin dha!
+
+# 7. Alternate spellings. Every bol on this line resolves through the alias
+#    table: ghe->ge, ke->ka, ra->re, trkt->tirakita.
+ghe  ke   na   ra   | dha  trkt dhin na   | ta   tin  tin  ta   | ta   dhin dhin dha

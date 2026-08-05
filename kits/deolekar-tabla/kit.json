@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "name": "deolekar-tabla",
+  "description": "Real recorded tabla, tuned to C#, from the Zenodo tabla strokes dataset by Subodh Deolekar (CC BY 4.0). See LICENSE.txt.",
+  "notes": "1 of the stroke vocabulary are stand-ins, not recordings: ki plays ka. See each entry's `notes` and README.md.",
+  "sample_rate_policy": "resample_on_load",
+  "strokes": {
+    "ge": {
+      "samples": [
+        "ge_rr1.wav",
+        "ge_rr2.wav",
+        "ge_rr3.wav",
+        "ge_rr4.wav",
+        "ge_rr5.wav",
+        "ge_rr6.wav",
+        "ge_rr7.wav",
+        "ge_rr8.wav",
+        "ge_rr9.wav",
+        "ge_rr10.wav"
+      ],
+      "gain_db": 17.1,
+      "pitch_semitones": 0.0
+    },
+    "ka": {
+      "samples": [
+        "ka_rr1.wav",
+        "ka_rr2.wav",
+        "ka_rr3.wav",
+        "ka_rr4.wav",
+        "ka_rr5.wav",
+        "ka_rr6.wav",
+        "ka_rr7.wav",
+        "ka_rr8.wav",
+        "ka_rr9.wav",
+        "ka_rr10.wav"
+      ],
+      "gain_db": 10.03,
+      "pitch_semitones": 0.0
+    },
+    "na": {
+      "samples": [
+        "na_rr1.wav",
+        "na_rr2.wav",
+        "na_rr3.wav",
+        "na_rr4.wav",
+        "na_rr5.wav",
+        "na_rr6.wav",
+        "na_rr7.wav",
+        "na_rr8.wav",
+        "na_rr9.wav",
+        "na_rr10.wav"
+      ],
+      "gain_db": -1.04,
+      "pitch_semitones": 0.0,
+      "notes": "Only 11 of the dataset's 50 `Na` takes are free of digital clipping; the round robins here are drawn from those."
+    },
+    "tin": {
+      "samples": [
+        "tin_rr1.wav",
+        "tin_rr2.wav",
+        "tin_rr3.wav",
+        "tin_rr4.wav",
+        "tin_rr5.wav",
+        "tin_rr6.wav",
+        "tin_rr7.wav",
+        "tin_rr8.wav",
+        "tin_rr9.wav",
+        "tin_rr10.wav"
+      ],
+      "gain_db": 0.81,
+      "pitch_semitones": 0.0
+    },
+    "tun": {
+      "samples": [
+        "tun_rr1.wav",
+        "tun_rr2.wav",
+        "tun_rr3.wav",
+        "tun_rr4.wav",
+        "tun_rr5.wav",
+        "tun_rr6.wav",
+        "tun_rr7.wav",
+        "tun_rr8.wav",
+        "tun_rr9.wav",
+        "tun_rr10.wav"
+      ],
+      "gain_db": 5.96,
+      "pitch_semitones": 0.0
+    },
+    "ta": {
+      "samples": [
+        "ta_rr1.wav",
+        "ta_rr2.wav",
+        "ta_rr3.wav",
+        "ta_rr4.wav",
+        "ta_rr5.wav",
+        "ta_rr6.wav",
+        "ta_rr7.wav",
+        "ta_rr8.wav",
+        "ta_rr9.wav",
+        "ta_rr10.wav"
+      ],
+      "gain_db": 1.69,
+      "pitch_semitones": 0.0
+    },
+    "ti": {
+      "samples": [
+        "ti_rr1.wav",
+        "ti_rr2.wav",
+        "ti_rr3.wav",
+        "ti_rr4.wav",
+        "ti_rr5.wav",
+        "ti_rr6.wav",
+        "ti_rr7.wav",
+        "ti_rr8.wav",
+        "ti_rr9.wav",
+        "ti_rr10.wav"
+      ],
+      "gain_db": -5.52,
+      "pitch_semitones": 0.0
+    },
+    "te": {
+      "samples": [
+        "te_rr1.wav",
+        "te_rr2.wav",
+        "te_rr3.wav",
+        "te_rr4.wav",
+        "te_rr5.wav",
+        "te_rr6.wav",
+        "te_rr7.wav",
+        "te_rr8.wav",
+        "te_rr9.wav",
+        "te_rr10.wav"
+      ],
+      "gain_db": -2.25,
+      "pitch_semitones": 0.0,
+      "notes": "Dataset class `T`, read as the damped syahi stroke. VERIFY by ear."
+    },
+    "re": {
+      "samples": [
+        "re_rr1.wav",
+        "re_rr2.wav",
+        "re_rr3.wav",
+        "re_rr4.wav",
+        "re_rr5.wav",
+        "re_rr6.wav",
+        "re_rr7.wav",
+        "re_rr8.wav",
+        "re_rr9.wav",
+        "re_rr10.wav"
+      ],
+      "gain_db": 3.72,
+      "pitch_semitones": 0.0,
+      "notes": "Dataset class `Tr` (tra/tre), promoted to `re`. Measured against every other class it is the shortest (63ms mean vs 109ms for `T`) and the quietest dayan stroke (peak 0.20 vs 0.56), while sitting spectrally in the closed-dayan family (cosine 0.84 to `Ti`, 0.80 to `T`). That is the profile data/strokes.yaml describes for `re`: a closed ring-finger flick with the least energy of any stroke. Not labelled `re` by the dataset, so VERIFY by ear -- but it is real recorded material of roughly the right gesture, which the previous `re`->`te` alias was not."
+    },
+    "ki": {
+      "alias_of": "ka",
+      "notes": "The dataset has no separate `ki`. Probably correct rather than a compromise -- data/strokes.yaml notes `ki` is commonly the same physical closed-bayan stroke as `ka`. VERIFY."
+    }
+  },
+  "composites": {
+    "dha": {
+      "samples": [
+        "dha_rr1.wav",
+        "dha_rr2.wav",
+        "dha_rr3.wav",
+        "dha_rr4.wav",
+        "dha_rr5.wav",
+        "dha_rr6.wav",
+        "dha_rr7.wav",
+        "dha_rr8.wav",
+        "dha_rr9.wav",
+        "dha_rr10.wav"
+      ],
+      "gain_db": 15.35,
+      "pitch_semitones": 0.0,
+      "notes": "Real recorded `Dha` -- bayan and dayan struck together, not a mix of two one-shots. 86% of its energy sits below 200Hz, so the bayan is genuinely there. VERIFY by ear which dayan stroke is in it: measurement does not settle that question here, because over 250Hz-8kHz it scores 0.46-0.63 against every candidate (`T`, `Tin`, `Na`, `Ti`, `Ta`) with no clear winner. Treat the dataset's own label as the best evidence available and your ear as better than both."
+    },
+    "dhun": {
+      "samples": [
+        "dhun_rr1.wav",
+        "dhun_rr2.wav",
+        "dhun_rr3.wav",
+        "dhun_rr4.wav",
+        "dhun_rr5.wav",
+        "dhun_rr6.wav",
+        "dhun_rr7.wav",
+        "dhun_rr8.wav",
+        "dhun_rr9.wav",
+        "dhun_rr10.wav"
+      ],
+      "gain_db": 16.42,
+      "pitch_semitones": 0.0,
+      "notes": "VERIFY -- inferred, not labelled. The dataset class is `Da`, which is ambiguous, but its dayan component matches `Tu` (cosine 0.76) and its bayan content is strong, so acoustically it is ge+tun = dhun. If it is really a `daa` to your ear, delete this entry."
+    }
+  }
+}

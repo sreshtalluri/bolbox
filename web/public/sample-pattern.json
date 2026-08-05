@@ -1,0 +1,279 @@
+{
+  "tal": "tintal",
+  "cycle_matras": 16,
+  "lay": 120.0,
+  "avartans": 1,
+  "title": "tintal theka",
+  "events": [
+    {
+      "pos": [
+        0,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 112,
+      "source_bol": "dha",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        0,
+        1
+      ],
+      "stroke": "na",
+      "velocity": 112,
+      "source_bol": "dha",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        1,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        1,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        2,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        2,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        3,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        3,
+        1
+      ],
+      "stroke": "na",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        4,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        4,
+        1
+      ],
+      "stroke": "na",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        5,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        5,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        6,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        6,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        7,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        7,
+        1
+      ],
+      "stroke": "na",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        8,
+        1
+      ],
+      "stroke": "na",
+      "velocity": 80,
+      "source_bol": "na",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        9,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 80,
+      "source_bol": "tin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        10,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 80,
+      "source_bol": "tin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        11,
+        1
+      ],
+      "stroke": "ta",
+      "velocity": 80,
+      "source_bol": "ta",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        12,
+        1
+      ],
+      "stroke": "ta",
+      "velocity": 100,
+      "source_bol": "ta",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        13,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        13,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        14,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        14,
+        1
+      ],
+      "stroke": "tin",
+      "velocity": 100,
+      "source_bol": "dhin",
+      "bol_offset": 1
+    },
+    {
+      "pos": [
+        15,
+        1
+      ],
+      "stroke": "ge",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 0
+    },
+    {
+      "pos": [
+        15,
+        1
+      ],
+      "stroke": "na",
+      "velocity": 100,
+      "source_bol": "dha",
+      "bol_offset": 1
+    }
+  ]
+}

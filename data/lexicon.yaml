@@ -1,0 +1,114 @@
+# Pronunciation dictionary: spoken bols -> physical strokes.
+#
+# Every `strokes:` entry must name strokes that exist in data/strokes.yaml.
+# Loading fails loudly if one does not.
+#
+# THREE KINDS OF ENTRY
+#
+#   simple      one syllable, one stroke.          ge -> [ge]
+#   composite   one syllable, strokes struck AT THE SAME INSTANT.
+#               dha -> [ge, na], simultaneous: true
+#               This is what makes `dha` two MIDI notes on one tick, and what
+#               lets a kit substitute a single recorded `dha` sample.
+#   compound    one word, strokes struck IN SEQUENCE, sharing one matra.
+#               tirakita -> [te, re, ki, ta]
+#
+# ALIASES are alternate spellings, not separate bols. `trkt` and `tirkit` are
+# the same word as `tirakita`; `ke` is the same word as `ka`. They resolve to
+# the canonical entry. The composition file keeps whatever you typed.
+#
+# ---------------------------------------------------------------------------
+# VERIFY: entries marked `verify: true` come from the project design doc and
+# general practice, not a cited gharana source. Realization varies by gharana
+# and by tempo. Sreshta -- play these and correct them. Everything downstream
+# reads this file, so a fix here is a fix everywhere.
+# ---------------------------------------------------------------------------
+
+version: 1
+
+bols:
+
+  # --- simple: one syllable, one stroke -----------------------------------
+
+  ge:   { strokes: [ge] }
+  ka:   { strokes: [ka] }
+  na:   { strokes: [na] }
+  ta:   { strokes: [ta] }
+  ti:   { strokes: [ti] }
+  tin:  { strokes: [tin] }
+  tun:  { strokes: [tun] }
+  te:   { strokes: [te] }
+  re:   { strokes: [re] }
+  ki:   { strokes: [ki] }
+
+  # --- composite: one syllable, simultaneous strokes ----------------------
+  # These are the bols that emit two MIDI notes on the same tick, and the ones
+  # a kit may replace with a single recorded sample (`composites` in kit.json).
+
+  dha:
+    strokes: [ge, na]
+    simultaneous: true
+    description: Open bayan and ringing dayan together. The signature tabla sound.
+
+  dhin:
+    strokes: [ge, tin]
+    simultaneous: true
+    description: Open bayan with the ringing dayan stroke nearer the syahi.
+
+  dhun:
+    strokes: [ge, tun]
+    simultaneous: true
+    verify: true
+    description: >
+      VERIFY -- open bayan with the open centre dayan stroke. Less standard than
+      dha/dhin and spelled inconsistently across traditions.
+
+  # --- compound: one word, sequential strokes sharing one matra ------------
+
+  tirakita:
+    strokes: [te, re, ki, ta]
+    verify: true
+    description: >
+      VERIFY -- the four-stroke compound this whole project is organised around.
+      Taken from the bolbox design doc. Common alternative readings put `ti`
+      first rather than `te`, and treat `ki` as a closed bayan stroke. Whichever
+      is right for you, fix it here once.
+
+  takita:
+    strokes: [ta, ki, ta]
+    verify: true
+    description: VERIFY -- three-stroke compound, one matra.
+
+  kitataka:
+    strokes: [ki, ta, ta, ka]
+    verify: true
+    description: >
+      VERIFY -- a permutation of tirakita's inventory. Note the adjacent
+      repeated `ta`, which is the case CTC needs a blank frame between later.
+
+  takatira:
+    strokes: [ta, ka, te, re]
+    verify: true
+    description: VERIFY -- another permutation of the same inventory.
+
+# Alternate spellings. Left side is what you might type, right side is the
+# canonical entry above. Adding a spelling here costs one line and prevents a
+# tokenization failure mid-composition.
+aliases:
+  # bayan
+  ghe: ge
+  gha: ge
+  ke: ka
+  kat: ka
+  # dayan
+  ra: re
+  # composites
+  dhaa: dha
+  # tirakita and its contractions -- these are the same word said faster
+  tirkit: tirakita
+  tirakit: tirakita
+  trkt: tirakita
+  terekita: tirakita
+  # takita
+  takit: takita
+  tkt: takita

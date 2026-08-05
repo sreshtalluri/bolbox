@@ -1,0 +1,102 @@
+# Canonical stroke vocabulary. SINGLE SOURCE OF TRUTH.
+#
+# Everything that names a stroke derives from or validates against this file:
+#   - data/lexicon.yaml     surface bols -> stroke tuples
+#   - bolbox/midi.py        the canonical stroke -> MIDI note map
+#   - kits/*/kit.json       which sample plays for which stroke
+#   - (later) vocab.json    the CTC output vocabulary
+#
+# These are PHYSICAL STROKES, not spoken bols. `dha` is not here: it is one
+# spoken syllable produced by two simultaneous strokes (ge + na), so it lives in
+# the lexicon as a composite. Same for `dhin` and `dhun`.
+#
+# Spelling variants (`ke` for `ka`, `dhe` for `ge`, ...) are NOT strokes either.
+# They are aliases and belong in data/lexicon.yaml. One physical stroke, one
+# entry here.
+#
+# ---------------------------------------------------------------------------
+# VERIFY: entries marked `verify: true` are drawn from the project design doc
+# and general practice, not from a cited gharana source. Realization varies.
+# Sreshta -- play through these and correct them; the rest of the system reads
+# whatever this file says, so fixing it here fixes it everywhere.
+# ---------------------------------------------------------------------------
+
+version: 1
+
+strokes:
+
+  # --- bayan (left hand, bass drum) ---------------------------------------
+
+  ge:
+    drum: bayan
+    damped: false
+    description: >
+      Open resonant bayan. Pitch bends under heel pressure, which is why the kit
+      format reserves a pitch-envelope field for it. Also written `ghe`, `gha`.
+
+  ka:
+    drum: bayan
+    damped: true
+    description: >
+      Closed bayan, flat hand. Also written `ke`, `kat`, `ki` in some notations
+      -- those spellings are aliases in the lexicon, not separate strokes.
+
+  # --- dayan (right hand, treble drum) ------------------------------------
+
+  na:
+    drum: dayan
+    damped: false
+    description: >
+      Ringing rim stroke, index finger on the kinar. The open dayan sound.
+
+  tin:
+    drum: dayan
+    damped: false
+    description: >
+      Ringing stroke nearer the syahi than `na`. Higher, more focused.
+
+  tun:
+    drum: dayan
+    damped: false
+    description: >
+      Open stroke on the centre of the syahi. The most resonant dayan stroke.
+
+  ta:
+    drum: dayan
+    damped: false
+    verify: true
+    description: >
+      VERIFY -- in much practice `ta` and `na` are the same physical stroke and
+      the choice of syllable is contextual. Kept distinct here so the notation
+      round-trips exactly. If they are one stroke for you, delete this entry and
+      add `ta: {alias_of: na}` to the lexicon.
+
+  te:
+    drum: dayan
+    damped: true
+    description: >
+      Closed, flat-fingered stroke on the syahi. Non-resonant.
+
+  ti:
+    drum: dayan
+    damped: true
+    verify: true
+    description: >
+      VERIFY -- closed index-finger stroke. May be identical to `te` for you.
+      If so, delete this entry and add `ti: {alias_of: te}` to the lexicon.
+
+  re:
+    drum: dayan
+    damped: true
+    description: >
+      Closed ring-finger flick. The stroke with the least energy, and the one
+      that will be hardest to hear at speed. Also written `ra`.
+
+  ki:
+    drum: bayan
+    damped: true
+    verify: true
+    description: >
+      VERIFY -- the `ki` of `tirakita`. Commonly a closed bayan stroke, i.e. the
+      same physical stroke as `ka`. If that is true for you, delete this entry
+      and add `ki: {alias_of: ka}` to the lexicon.

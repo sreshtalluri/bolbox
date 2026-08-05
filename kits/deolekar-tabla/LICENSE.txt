@@ -1,0 +1,180 @@
+ATTRIBUTION AND LICENSE
+========================================================================
+
+The WAV files in this directory are derived from a third-party dataset.
+
+  Title       Tabla strokes dataset
+  Creator     Subodh Deolekar
+  Published   2020, Zenodo
+  Record      https://zenodo.org/records/4327350
+  DOI         10.5281/zenodo.4327350
+  Concept DOI 10.5281/zenodo.4327349
+  License     Creative Commons Attribution 4.0 International (CC BY 4.0)
+  License URL https://creativecommons.org/licenses/by/4.0/
+
+Required attribution line:
+
+  "Tabla strokes dataset" by Subodh Deolekar (2020), licensed under Creative Commons Attribution 4.0 International (CC BY 4.0). Source: https://zenodo.org/records/4327350 (DOI 10.5281/zenodo.4327350). Modified for bolbox: takes selected, trimmed, downmixed to mono.
+
+
+MODIFICATIONS MADE (CC BY 4.0 section 3(a)(1)(B) requires these be stated)
+------------------------------------------------------------------------
+
+1. SELECTION. The source has 13 stroke classes of 50 takes each (650
+   files). This kit keeps at most 10 takes of 10 classes. Takes with any
+   sample at digital full scale were rejected, then takes more than
+   +/-6dB from the class median peak, then the remainder was sampled
+   evenly across take order.
+
+2. CHANNEL. Downmixed from stereo to mono by averaging the two channels.
+
+3. TRIMMING. Leading silence trimmed to a uniform 2ms pre-roll and
+   trailing silence removed, followed by a 10ms linear fade-out. The
+   source clips are cut while the drum is still ringing; the fade
+   replaces a truncation click.
+
+4. RENAMING. Files were renamed from `<Class>_Test<NN>.wav` to
+   `<stroke>_rr<N>.wav` to match this project's kit convention. The map
+   from dataset class to bolbox stroke, and the exact source file behind
+   every sample, is listed under PROVENANCE below.
+
+5. NOT MODIFIED: sample rate (44.1kHz throughout, unchanged), bit depth
+   (16-bit, unchanged), and AMPLITUDE. No normalization, gain or
+   compression was applied to any sample. The per-stroke balance this kit
+   needs lives in `gain_db` in kit.json and is applied at playback, so
+   the audio here stays faithful to the source.
+
+6. NOT INCLUDED. Three of the 13 classes are unused:
+
+   Di   Pure dayan -- under 2% of its energy is below 200Hz, against 86% for `Dh` and 75% for `Da`. There is no bayan in it, so despite the name it is a `din`, not a `dhin`, and it cannot be a composite. bolbox has no `din` bol, and inventing one to consume a sample would be the vocabulary following the dataset instead of the instrument. Left out.
+   N    Pure dayan resonant stroke (0.2% below 200Hz), closest to `Na` (cosine 0.42). Unclear which bol it is; `na` is already covered by the `Na` class.
+
+
+PROVENANCE (bolbox filename <- source filename)
+------------------------------------------------------------------------
+
+  ge_rr1.wav  <-  Ge_Test06.wav
+  ge_rr2.wav  <-  Ge_Test11.wav
+  ge_rr3.wav  <-  Ge_Test16.wav
+  ge_rr4.wav  <-  Ge_Test21.wav
+  ge_rr5.wav  <-  Ge_Test26.wav
+  ge_rr6.wav  <-  Ge_Test30.wav
+  ge_rr7.wav  <-  Ge_Test35.wav
+  ge_rr8.wav  <-  Ge_Test40.wav
+  ge_rr9.wav  <-  Ge_Test45.wav
+  ge_rr10.wav  <-  Ge_Test50.wav
+
+  ka_rr1.wav  <-  Ka_Test06.wav
+  ka_rr2.wav  <-  Ka_Test11.wav
+  ka_rr3.wav  <-  Ka_Test16.wav
+  ka_rr4.wav  <-  Ka_Test21.wav
+  ka_rr5.wav  <-  Ka_Test26.wav
+  ka_rr6.wav  <-  Ka_Test30.wav
+  ka_rr7.wav  <-  Ka_Test35.wav
+  ka_rr8.wav  <-  Ka_Test40.wav
+  ka_rr9.wav  <-  Ka_Test45.wav
+  ka_rr10.wav  <-  Ka_Test50.wav
+
+  na_rr1.wav  <-  Na_Test02.wav
+  na_rr2.wav  <-  Na_Test03.wav
+  na_rr3.wav  <-  Na_Test04.wav
+  na_rr4.wav  <-  Na_Test05.wav
+  na_rr5.wav  <-  Na_Test17.wav
+  na_rr6.wav  <-  Na_Test19.wav
+  na_rr7.wav  <-  Na_Test21.wav
+  na_rr8.wav  <-  Na_Test40.wav
+  na_rr9.wav  <-  Na_Test44.wav
+  na_rr10.wav  <-  Na_Test48.wav
+
+  tin_rr1.wav  <-  Tin_Test01.wav
+  tin_rr2.wav  <-  Tin_Test06.wav
+  tin_rr3.wav  <-  Tin_Test12.wav
+  tin_rr4.wav  <-  Tin_Test17.wav
+  tin_rr5.wav  <-  Tin_Test23.wav
+  tin_rr6.wav  <-  Tin_Test28.wav
+  tin_rr7.wav  <-  Tin_Test34.wav
+  tin_rr8.wav  <-  Tin_Test39.wav
+  tin_rr9.wav  <-  Tin_Test45.wav
+  tin_rr10.wav  <-  Tin_Test50.wav
+
+  tun_rr1.wav  <-  Tu_Test01.wav
+  tun_rr2.wav  <-  Tu_Test06.wav
+  tun_rr3.wav  <-  Tu_Test12.wav
+  tun_rr4.wav  <-  Tu_Test17.wav
+  tun_rr5.wav  <-  Tu_Test23.wav
+  tun_rr6.wav  <-  Tu_Test28.wav
+  tun_rr7.wav  <-  Tu_Test34.wav
+  tun_rr8.wav  <-  Tu_Test39.wav
+  tun_rr9.wav  <-  Tu_Test45.wav
+  tun_rr10.wav  <-  Tu_Test50.wav
+
+  ta_rr1.wav  <-  Ta_Test01.wav
+  ta_rr2.wav  <-  Ta_Test06.wav
+  ta_rr3.wav  <-  Ta_Test12.wav
+  ta_rr4.wav  <-  Ta_Test17.wav
+  ta_rr5.wav  <-  Ta_Test23.wav
+  ta_rr6.wav  <-  Ta_Test28.wav
+  ta_rr7.wav  <-  Ta_Test34.wav
+  ta_rr8.wav  <-  Ta_Test39.wav
+  ta_rr9.wav  <-  Ta_Test45.wav
+  ta_rr10.wav  <-  Ta_Test50.wav
+
+  ti_rr1.wav  <-  Ti_Test01.wav
+  ti_rr2.wav  <-  Ti_Test06.wav
+  ti_rr3.wav  <-  Ti_Test12.wav
+  ti_rr4.wav  <-  Ti_Test17.wav
+  ti_rr5.wav  <-  Ti_Test23.wav
+  ti_rr6.wav  <-  Ti_Test28.wav
+  ti_rr7.wav  <-  Ti_Test34.wav
+  ti_rr8.wav  <-  Ti_Test39.wav
+  ti_rr9.wav  <-  Ti_Test45.wav
+  ti_rr10.wav  <-  Ti_Test50.wav
+
+  te_rr1.wav  <-  T_Test01.wav
+  te_rr2.wav  <-  T_Test06.wav
+  te_rr3.wav  <-  T_Test12.wav
+  te_rr4.wav  <-  T_Test17.wav
+  te_rr5.wav  <-  T_Test23.wav
+  te_rr6.wav  <-  T_Test28.wav
+  te_rr7.wav  <-  T_Test34.wav
+  te_rr8.wav  <-  T_Test39.wav
+  te_rr9.wav  <-  T_Test45.wav
+  te_rr10.wav  <-  T_Test50.wav
+
+  re_rr1.wav  <-  Tr_Test01.wav
+  re_rr2.wav  <-  Tr_Test06.wav
+  re_rr3.wav  <-  Tr_Test11.wav
+  re_rr4.wav  <-  Tr_Test17.wav
+  re_rr5.wav  <-  Tr_Test24.wav
+  re_rr6.wav  <-  Tr_Test29.wav
+  re_rr7.wav  <-  Tr_Test34.wav
+  re_rr8.wav  <-  Tr_Test40.wav
+  re_rr9.wav  <-  Tr_Test45.wav
+  re_rr10.wav  <-  Tr_Test50.wav
+
+  dha_rr1.wav  <-  Dh_Test06.wav
+  dha_rr2.wav  <-  Dh_Test11.wav
+  dha_rr3.wav  <-  Dh_Test16.wav
+  dha_rr4.wav  <-  Dh_Test21.wav
+  dha_rr5.wav  <-  Dh_Test26.wav
+  dha_rr6.wav  <-  Dh_Test30.wav
+  dha_rr7.wav  <-  Dh_Test35.wav
+  dha_rr8.wav  <-  Dh_Test40.wav
+  dha_rr9.wav  <-  Dh_Test45.wav
+  dha_rr10.wav  <-  Dh_Test50.wav
+
+  dhun_rr1.wav  <-  Da_Test06.wav
+  dhun_rr2.wav  <-  Da_Test11.wav
+  dhun_rr3.wav  <-  Da_Test16.wav
+  dhun_rr4.wav  <-  Da_Test21.wav
+  dhun_rr5.wav  <-  Da_Test26.wav
+  dhun_rr6.wav  <-  Da_Test30.wav
+  dhun_rr7.wav  <-  Da_Test35.wav
+  dhun_rr8.wav  <-  Da_Test40.wav
+  dhun_rr9.wav  <-  Da_Test45.wav
+  dhun_rr10.wav  <-  Da_Test50.wav
+
+
+The bolbox code that produced this directory
+(scripts/make_deolekar_kit.py) is part of bolbox and carries bolbox's
+own license. This file covers the audio only.

@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "name": "placeholder-tabla",
+  "description": "Synthesized stand-in tabla. Not recordings. Replace with your own drum -- see README.md in this folder.",
+  "sample_rate_policy": "resample_on_load",
+  "strokes": {
+    "ge": {
+      "samples": [
+        "ge_rr1.wav",
+        "ge_rr2.wav",
+        "ge_rr3.wav",
+        "ge_rr4.wav",
+        "ge_rr5.wav",
+        "ge_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "ka": {
+      "samples": [
+        "ka_rr1.wav",
+        "ka_rr2.wav",
+        "ka_rr3.wav",
+        "ka_rr4.wav",
+        "ka_rr5.wav",
+        "ka_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "ki": {
+      "samples": [
+        "ki_rr1.wav",
+        "ki_rr2.wav",
+        "ki_rr3.wav",
+        "ki_rr4.wav",
+        "ki_rr5.wav",
+        "ki_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "tun": {
+      "samples": [
+        "tun_rr1.wav",
+        "tun_rr2.wav",
+        "tun_rr3.wav",
+        "tun_rr4.wav",
+        "tun_rr5.wav",
+        "tun_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "na": {
+      "samples": [
+        "na_rr1.wav",
+        "na_rr2.wav",
+        "na_rr3.wav",
+        "na_rr4.wav",
+        "na_rr5.wav",
+        "na_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "tin": {
+      "samples": [
+        "tin_rr1.wav",
+        "tin_rr2.wav",
+        "tin_rr3.wav",
+        "tin_rr4.wav",
+        "tin_rr5.wav",
+        "tin_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "ta": {
+      "samples": [
+        "ta_rr1.wav",
+        "ta_rr2.wav",
+        "ta_rr3.wav",
+        "ta_rr4.wav",
+        "ta_rr5.wav",
+        "ta_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "te": {
+      "samples": [
+        "te_rr1.wav",
+        "te_rr2.wav",
+        "te_rr3.wav",
+        "te_rr4.wav",
+        "te_rr5.wav",
+        "te_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "ti": {
+      "samples": [
+        "ti_rr1.wav",
+        "ti_rr2.wav",
+        "ti_rr3.wav",
+        "ti_rr4.wav",
+        "ti_rr5.wav",
+        "ti_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "re": {
+      "samples": [
+        "re_rr1.wav",
+        "re_rr2.wav",
+        "re_rr3.wav",
+        "re_rr4.wav",
+        "re_rr5.wav",
+        "re_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    }
+  },
+  "composites": {
+    "dha": {
+      "samples": [
+        "dha_rr1.wav",
+        "dha_rr2.wav",
+        "dha_rr3.wav",
+        "dha_rr4.wav",
+        "dha_rr5.wav",
+        "dha_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "dhin": {
+      "samples": [
+        "dhin_rr1.wav",
+        "dhin_rr2.wav",
+        "dhin_rr3.wav",
+        "dhin_rr4.wav",
+        "dhin_rr5.wav",
+        "dhin_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    },
+    "dhun": {
+      "samples": [
+        "dhun_rr1.wav",
+        "dhun_rr2.wav",
+        "dhun_rr3.wav",
+        "dhun_rr4.wav",
+        "dhun_rr5.wav",
+        "dhun_rr6.wav"
+      ],
+      "gain_db": 0.0,
+      "pitch_semitones": 0.0
+    }
+  }
+}
