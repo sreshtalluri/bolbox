@@ -147,10 +147,15 @@ Removes the verify note speculating that ta and na are one stroke."
 
 ---
 
-### Task 2: `Variant`, and `Bol` as a set of realizations
+### Task 2: `Variant`, `Bol` as a set of realizations, and `din`
+
+`din` is added here rather than later because Tasks 4 and 5 parse `din@full`
+against the real default lexicon. It is also the only multi-variant bol that
+ships, so it is what gives this task's loader tests something real to load.
 
 **Files:**
 - Modify: `bolbox/lexicon.py:39-66` (the `Bol` dataclass), `bolbox/lexicon.py:113-141` (the loader loop)
+- Modify: `data/lexicon.yaml`
 - Test: `tests/test_lexicon.py`
 
 **Interfaces:**
@@ -238,6 +243,18 @@ def test_every_shipped_bol_still_loads(lex: Lexicon) -> None:
         assert bol.variants, bol.name
         assert bol.default is bol.variants[0]
         assert bol.strokes == bol.default.strokes
+
+
+def test_din_ships_with_two_realizations_both_flagged_for_verification(
+    lex: Lexicon,
+) -> None:
+    """The motivating case. Strokes are inferences until played -- hence verify."""
+    din = lex.resolve("din")
+    assert [v.name for v in din.variants] == ["kinar", "full"]
+    assert din.default.name == "kinar"
+    assert din.strokes == ("na",)
+    assert all(v.verify for v in din.variants)
+    assert din in lex.needs_verification
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -439,26 +456,63 @@ Note `sorted(..., key=lambda v: v.name != defaults[0])` is a stable sort on a
 boolean, so the default moves to index 0 and every other variant keeps its file
 order.
 
-- [ ] **Step 5: Run the full suite**
+- [ ] **Step 5: Add `din` to the lexicon**
+
+`din` is not currently a bol. `scripts/make_deolekar_kit.py:161-165` records a
+sample class deliberately left unused because "bolbox has no `din` bol, and
+inventing one to consume a sample would be the vocabulary following the dataset
+instead of the instrument." That reasoning was right; `din` enters now because
+the instrument demands it, and the sample becomes usable as a consequence.
+
+In `data/lexicon.yaml`, add a new block after the simple bols and before the
+composites:
+
+```yaml
+  # --- variants: one syllable, several possible strokes --------------------
+  # A bol with more than one physical realization. You say these identically
+  # whichever way you play them, so the recitation carries no information about
+  # which was meant -- and neither will the transcription model. The choice is
+  # a rendering decision, defaulted here and overridable in the notation with
+  # `din@full`.
+
+  din:
+    variants:
+      kinar:
+        strokes: [na]
+        default: true
+        verify: true
+        description: >
+          VERIFY -- one finger striking the edge, for the open ringing sound.
+          Marked default because it is the more common reading; confirm both
+          the choice of default and the stroke by playing them.
+      full:
+        strokes: [ta]
+        verify: true
+        description: VERIFY -- full hand on the drum.
+```
+
+- [ ] **Step 6: Run the full suite**
 
 Run: `python -m pytest -v`
 Expected: PASS, including every pre-existing test. If `test_lexicon.py` or
 `test_grid.py` fails, the delegating properties are wrong — fix the property,
-not the caller. No file outside `bolbox/lexicon.py` should need an edit in this task.
+not the caller. Outside `data/lexicon.yaml`, no file but `bolbox/lexicon.py`
+should need an edit in this task.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add bolbox/lexicon.py tests/test_lexicon.py
+git add bolbox/lexicon.py data/lexicon.yaml tests/test_lexicon.py
 git commit -m "A bol resolves to one of several named realizations
 
 Variant holds what Bol used to hold. Bol becomes a name plus an ordered tuple
 of variants, default first, with strokes/simultaneous/slot_count delegating to
 the default so every existing caller is untouched.
 
-Motivated by din, which is struck full-handed or with one finger on the edge
-and is recited identically either way -- so no acoustic model can ever recover
-the choice, and it has to be an explicit layer instead."
+Adds din, the motivating case: struck full-handed or with one finger on the
+edge, and recited identically either way -- so no acoustic model can ever
+recover the choice, and it has to be an explicit layer instead. Both
+realizations ship marked verify; the strokes are inferences until played."
 ```
 
 ---
@@ -1016,39 +1070,22 @@ a default so patterns stored before this change still load."
 
 ---
 
-### Task 6: `din` enters the lexicon
+### Task 6: Expose variants from the API
 
-`din` is not currently a bol. `scripts/make_deolekar_kit.py:161-165` records a
-sample class deliberately left unused because "bolbox has no `din` bol, and
-inventing one to consume a sample would be the vocabulary following the dataset
-instead of the instrument." That reasoning was right; `din` now enters because
-the instrument demands it, and the sample becomes usable as a consequence.
+`din` itself landed in Task 2, because Tasks 4 and 5 parse it. What is left is
+making variants visible to clients, and correcting the note in the kit script
+that says bolbox has no `din` bol.
 
 **Files:**
-- Modify: `data/lexicon.yaml`
 - Modify: `bolbox/server.py:113-121` (the `/api/vocabulary` bols block)
 - Modify: `scripts/make_deolekar_kit.py:159-165` (the `UNUSED` note)
-- Test: `tests/test_lexicon.py`, `tests/test_server.py`
+- Test: `tests/test_server.py`
 
 **Interfaces:**
 - Consumes: Tasks 2-5.
-- Produces: bol `din` with variants `kinar` (default) and `full`; `/api/vocabulary` bols each carry a `variants` array.
+- Produces: each bol in `/api/vocabulary` carries a `variants` array, default first, alongside the existing flattened `strokes`.
 
 - [ ] **Step 1: Write the failing test**
-
-Append to `tests/test_lexicon.py`:
-
-```python
-def test_din_ships_with_two_realizations_both_flagged_for_verification(
-    lex: Lexicon,
-) -> None:
-    """The motivating case. Strokes are inferences until played -- hence verify."""
-    din = lex.resolve("din")
-    assert [v.name for v in din.variants] == ["kinar", "full"]
-    assert din.default.name == "kinar"
-    assert all(v.verify for v in din.variants)
-    assert din in lex.needs_verification
-```
 
 Append to `tests/test_server.py`. Note it uses a **module-level** `client =
 TestClient(app)` at line 19, not a fixture — so these take no parameter:
@@ -1074,39 +1111,11 @@ def test_vocabulary_lists_tha_and_na_separately() -> None:
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `python -m pytest tests/test_lexicon.py::test_din_ships_with_two_realizations_both_flagged_for_verification tests/test_server.py -k "variants or tha" -v`
-Expected: FAIL — `TokenizeError` on `"din"`, and `KeyError: 'variants'`.
+Run: `python -m pytest tests/test_server.py -k "variants or tha" -v`
+Expected: FAIL — `KeyError: 'variants'`. (`test_vocabulary_lists_tha_and_na_separately`
+should already pass; Task 1 added `tha`.)
 
-- [ ] **Step 3: Add `din` to the lexicon**
-
-In `data/lexicon.yaml`, add a new block after the simple bols and before the
-composites:
-
-```yaml
-  # --- variants: one syllable, several possible strokes --------------------
-  # A bol with more than one physical realization. You say these identically
-  # whichever way you play them, so the recitation carries no information about
-  # which was meant -- and neither will the transcription model. The choice is
-  # a rendering decision, defaulted here and overridable in the notation with
-  # `din@full`.
-
-  din:
-    variants:
-      kinar:
-        strokes: [na]
-        default: true
-        verify: true
-        description: >
-          VERIFY -- one finger striking the edge, for the open ringing sound.
-          Marked default because it is the more common reading; confirm both
-          the choice of default and the stroke by playing them.
-      full:
-        strokes: [ta]
-        verify: true
-        description: VERIFY -- full hand on the drum.
-```
-
-- [ ] **Step 4: Expose variants from `/api/vocabulary`**
+- [ ] **Step 3: Expose variants from `/api/vocabulary`**
 
 In `bolbox/server.py`, replace the `bols` list comprehension (lines 113-121):
 
@@ -1134,7 +1143,7 @@ In `bolbox/server.py`, replace the `bols` list comprehension (lines 113-121):
         ],
 ```
 
-- [ ] **Step 5: Update the kit script's `UNUSED` note**
+- [ ] **Step 4: Update the kit script's `UNUSED` note**
 
 In `scripts/make_deolekar_kit.py`, replace the `Di` entry (lines 161-165):
 
@@ -1148,25 +1157,25 @@ In `scripts/make_deolekar_kit.py`, replace the `Di` entry (lines 161-165):
           "kit, and only once the din variants stop being marked `verify`.",
 ```
 
-- [ ] **Step 6: Run the full suite**
+- [ ] **Step 5: Run the full suite**
 
 Run: `python -m pytest -v`
 Expected: PASS. The README's "things that need your ear" snippet will now also
 list `din` — that is correct and wanted.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add data/lexicon.yaml bolbox/server.py scripts/make_deolekar_kit.py tests/
-git commit -m "Add din, the bol with two realizations
+git add bolbox/server.py scripts/make_deolekar_kit.py tests/test_server.py
+git commit -m "Expose bol variants from /api/vocabulary
 
-din enters because the instrument has it, not because a sample was sitting
-there -- which is the distinction make_deolekar_kit.py drew when it left the Di
-class out. Both realizations ship marked verify: the strokes are inferences
-until they are played.
+Each bol carries a variants array, default first, alongside the flattened
+default strokes -- so a client that does not care about variants reads exactly
+what it read before.
 
-/api/vocabulary now carries a variants array per bol, with the flattened
-default still present so existing clients read what they read before."
+Also corrects the Di note in make_deolekar_kit.py, which said bolbox has no din
+bol. It has one now, added because the instrument has it rather than to consume
+that sample, which is the distinction the note was drawing."
 ```
 
 ---
