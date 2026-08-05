@@ -150,6 +150,22 @@ def test_lexicon_rejects_a_stroke_that_is_not_in_the_vocabulary(vocab: Vocabular
             "version: 1\nbols:\n  ge:\n    strokes: [ge]\naliases:\n  ge: ge\n",
             "shadows a real bol",
         ),
+        (
+            "version: 1\nbols:\n  'di@n':\n    strokes: [ge]\n",
+            "'@' or whitespace",
+        ),
+        (
+            "version: 1\nbols:\n  'di n':\n    strokes: [ge]\n",
+            "'@' or whitespace",
+        ),
+        (
+            "version: 1\nbols:\n  ge:\n    strokes: [ge]\naliases:\n  'g@e': ge\n",
+            "'@' or whitespace",
+        ),
+        (
+            "version: 1\nbols:\n  ge:\n    strokes: [ge]\naliases:\n  'g e': ge\n",
+            "'@' or whitespace",
+        ),
     ],
 )
 def test_malformed_lexicon_is_rejected(vocab: Vocabulary, body: str, fragment: str) -> None:
@@ -341,3 +357,28 @@ def test_strokes_for_follows_the_selected_variant(vocab: Vocabulary) -> None:
     lex = _lex(VARIANT_YAML, vocab)
     assert lex.strokes_for("din") == ("na",)
     assert lex.strokes_for("din@full") == ("ta",)
+
+
+SHARED_PREFIX_VARIANT_YAML = """
+version: 1
+bols:
+  ge: { strokes: [ge] }
+  x:
+    variants:
+      ful:  { strokes: [ka], default: true }
+      full: { strokes: [ta] }
+"""
+
+
+def test_variant_suffix_prefers_the_longest_matching_variant_name(
+    vocab: Vocabulary,
+) -> None:
+    """`ful` is a prefix of `full`. Stopping at the shorter match would misread
+    `x@fullge` as variant `ful` followed by the garbage tail `lge`, instead of
+    variant `full` followed by the bol `ge`. This is a regression guard on the
+    tie-break itself: reversing the sort, or picking an arbitrary match instead
+    of the longest, still passes every other variant test but fails this one.
+    """
+    segments = _lex(SHARED_PREFIX_VARIANT_YAML, vocab).tokenize("x@fullge")
+    assert [s.bol.name for s in segments] == ["x", "ge"]
+    assert [s.variant.name for s in segments] == ["full", ""]

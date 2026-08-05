@@ -250,6 +250,12 @@ class Lexicon:
         for name, body in entries.items():
             if not isinstance(name, str) or not name.islower():
                 raise LexiconError(f"{source}: bol names must be lowercase strings")
+            if VARIANT_SEP in name or any(c.isspace() for c in name):
+                raise LexiconError(
+                    f"{source}: bol {name!r} may not contain '@' or whitespace -- "
+                    "'@' is the notation's variant separator and whitespace "
+                    "separates matras"
+                )
             if not isinstance(body, dict):
                 raise LexiconError(f"{source}: bol {name!r} must map to a mapping")
 
@@ -277,6 +283,12 @@ class Lexicon:
             if not isinstance(alias, str) or not isinstance(target, str):
                 raise LexiconError(f"{source}: aliases must be string -> string")
             alias, target = alias.lower(), target.lower()
+            if VARIANT_SEP in alias or any(c.isspace() for c in alias):
+                raise LexiconError(
+                    f"{source}: alias {alias!r} may not contain '@' or whitespace -- "
+                    "'@' is the notation's variant separator and whitespace "
+                    "separates matras"
+                )
             if alias in bols:
                 raise LexiconError(
                     f"{source}: alias {alias!r} shadows a real bol of the same name"
