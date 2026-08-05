@@ -113,9 +113,21 @@ def vocabulary() -> dict:
         "bols": [
             {
                 "name": bol.name,
+                # The default realization, flattened -- so a client that does
+                # not care about variants reads exactly what it read before.
                 "strokes": list(bol.strokes),
                 "simultaneous": bol.simultaneous,
                 "verify": bol.verify,
+                "variants": [
+                    {
+                        "name": v.name,
+                        "strokes": list(v.strokes),
+                        "simultaneous": v.simultaneous,
+                        "verify": v.verify,
+                        "description": v.description,
+                    }
+                    for v in bol.variants
+                ],
             }
             for bol in _LEXICON
         ],

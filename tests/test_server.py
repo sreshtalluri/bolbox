@@ -200,3 +200,21 @@ def test_every_listed_kit_loads() -> None:
 
     for name in client.get("/api/kits").json()["kits"]:
         Kit.load(KITS_DIR / name, vocab=_VOCAB, lexicon=_LEXICON)
+
+
+def test_vocabulary_exposes_variants() -> None:
+    body = client.get("/api/vocabulary").json()
+    din = next(b for b in body["bols"] if b["name"] == "din")
+    assert [v["name"] for v in din["variants"]] == ["kinar", "full"]
+    assert din["strokes"] == din["variants"][0]["strokes"]  # default first
+
+    # A client that does not care about variants reads what it read before.
+    ge = next(b for b in body["bols"] if b["name"] == "ge")
+    assert len(ge["variants"]) == 1
+    assert ge["variants"][0]["name"] == ""
+    assert ge["strokes"] == ["ge"]
+
+
+def test_vocabulary_lists_tha_and_na_separately() -> None:
+    names = [b["name"] for b in client.get("/api/vocabulary").json()["bols"]]
+    assert "tha" in names and "na" in names

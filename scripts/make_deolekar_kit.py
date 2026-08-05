@@ -160,9 +160,11 @@ ALIASES: dict[str, tuple[str, str]] = {
 UNUSED = {
     "Di": "Pure dayan -- under 2% of its energy is below 200Hz, against 86% for "
           "`Dh` and 75% for `Da`. There is no bayan in it, so despite the name "
-          "it is a `din`, not a `dhin`, and it cannot be a composite. bolbox has "
-          "no `din` bol, and inventing one to consume a sample would be the "
-          "vocabulary following the dataset instead of the instrument. Left out.",
+          "it is a `din`, not a `dhin`, and it cannot be a composite. Left out "
+          "when bolbox had no `din` bol. It has one now -- added because the "
+          "instrument has it, not to consume this sample -- so wiring `Di` in "
+          "as a `din` realization is open work. Do it after recording your own "
+          "kit, and only once the din variants stop being marked `verify`.",
     "N":  "Pure dayan resonant stroke (0.2% below 200Hz), closest to `Na` "
           "(cosine 0.42). Unclear which bol it is; `na` is already covered by "
           "the `Na` class.",
