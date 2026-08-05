@@ -11,7 +11,9 @@ from __future__ import annotations
 from fractions import Fraction
 
 import pytest
+import yaml
 
+from bolbox.format import parse
 from bolbox.grid import BASE_VELOCITY, grid, grid_text
 from bolbox.lexicon import Lexicon
 from bolbox.pattern import Pattern
@@ -186,3 +188,77 @@ def test_gridding_never_loses_the_cycle(body: str) -> None:
     pattern = pattern_for(sixteen(body))
     assert pattern.total_matras == 16
     assert all(0 <= e.pos < 16 for e in pattern.events)
+
+
+# -- variants -----------------------------------------------------------
+
+
+def test_variant_selects_the_strokes_and_reaches_the_event() -> None:
+    comp = parse(
+        "tal: tintal\nlay: 120\n\n"
+        "din din@full - - | - - - - | - - - - | - - - -\n"
+    )
+    pattern = grid(comp)
+    default, chosen = pattern.events[0], pattern.events[1]
+
+    assert default.source_bol == "din" and default.variant == ""
+    assert default.stroke == "na"          # the default realization
+
+    assert chosen.source_bol == "din" and chosen.variant == "full"
+    assert chosen.stroke == "ta"           # the selected one
+
+
+def test_variant_survives_the_dict_round_trip() -> None:
+    comp = parse(
+        "tal: tintal\nlay: 120\n\n"
+        "din@full - - - | - - - - | - - - - | - - - -\n"
+    )
+    pattern = grid(comp)
+    assert pattern.to_dict()["events"][0]["variant"] == "full"
+    assert Pattern.from_dict(pattern.to_dict()) == pattern
+
+
+def test_events_without_a_variant_key_still_load() -> None:
+    """Patterns stored before variants existed must not fail to load."""
+    payload = grid(parse(
+        "tal: tintal\nlay: 120\n\ndha - - - | - - - - | - - - - | - - - -\n"
+    )).to_dict()
+    for event in payload["events"]:
+        del event["variant"]
+    assert Pattern.from_dict(payload).events[0].variant == ""
+
+
+_MULTI_STROKE_VARIANT_YAML = """
+version: 1
+bols:
+  x:
+    variants:
+      one: { strokes: [ge], default: true }
+      big: { strokes: [te, re, ki] }
+"""
+
+
+def test_multi_stroke_variant_subdivides_its_own_slot_count() -> None:
+    """A variant can change the STROKE COUNT, not just which stroke fires.
+
+    `_expand` divides the bol's share by `len(realization.strokes)`. If it
+    divided by the DEFAULT realization's stroke count (one) instead of the
+    selected one (three), every event here would land on the same position
+    instead of subdividing the matra into thirds.
+    """
+    lex = Lexicon.from_dict(
+        yaml.safe_load(_MULTI_STROKE_VARIANT_YAML), Vocabulary.load(), source="<test>"
+    )
+    comp = parse(
+        "tal: tintal\nlay: 120\n\n"
+        "x@big - - - | - - - - | - - - - | - - - -\n",
+        lexicon=lex,
+    )
+    pattern = grid(comp, lexicon=lex)
+    events = sorted(e for e in pattern.events if e.pos < 1)
+
+    assert [e.pos for e in events] == [Fraction(0, 3), Fraction(1, 3), Fraction(2, 3)]
+    assert [e.stroke for e in events] == ["te", "re", "ki"]
+    assert [e.bol_offset for e in events] == [0, 1, 2]
+    assert all(e.source_bol == "x" for e in events)
+    assert all(e.variant == "big" for e in events)

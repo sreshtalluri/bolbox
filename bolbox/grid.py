@@ -69,9 +69,10 @@ def grid(
 
 def _expand(placed: PlacedBol, tal: Tal, lexicon: Lexicon) -> list[Event]:
     bol = lexicon.resolve(placed.surface)
+    realization = bol.variant(placed.variant)
     velocity = _velocity(placed, tal)
 
-    if bol.simultaneous:
+    if realization.simultaneous:
         # One instant, several strokes. This is what makes a composite `dha`
         # reachable downstream: the events share a position AND a source_bol.
         return [
@@ -81,11 +82,12 @@ def _expand(placed: PlacedBol, tal: Tal, lexicon: Lexicon) -> list[Event]:
                 velocity=velocity,
                 source_bol=bol.name,
                 bol_offset=index,
+                variant=placed.variant,
             )
-            for index, stroke in enumerate(bol.strokes)
+            for index, stroke in enumerate(realization.strokes)
         ]
 
-    share = placed.duration / len(bol.strokes)
+    share = placed.duration / len(realization.strokes)
     return [
         Event(
             pos=placed.pos + share * index,
@@ -93,8 +95,9 @@ def _expand(placed: PlacedBol, tal: Tal, lexicon: Lexicon) -> list[Event]:
             velocity=velocity,
             source_bol=bol.name,
             bol_offset=index,
+            variant=placed.variant,
         )
-        for index, stroke in enumerate(bol.strokes)
+        for index, stroke in enumerate(realization.strokes)
     ]
 
 

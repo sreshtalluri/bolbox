@@ -208,6 +208,15 @@ def _place(
     segments = lexicon.tokenize(node.text)
     share = duration / len(segments)
     for index, segment in enumerate(segments):
+        # PlacedBol.variant is "" for the default realization, even when the
+        # default has its own name in the lexicon (`din`'s default is named
+        # "kinar", not ""). `segment.variant.name` always carries the
+        # resolved name, so it is only kept here when it names a
+        # NON-default choice -- an explicit `@full` -- and dropped to ""
+        # otherwise, whether that came from a bare `din` or a spelled-out
+        # `din@kinar`. Downstream (grid.py, kit.py) "" means "the default",
+        # not "no variant was named".
+        variant = "" if segment.variant is segment.bol.default else segment.variant.name
         out.append(
             PlacedBol(
                 pos=start + share * index,
@@ -215,7 +224,7 @@ def _place(
                 surface=segment.bol.name,
                 accent=node.accent,
                 matra=matra,
-                variant=segment.variant.name,
+                variant=variant,
                 line=node.line,
                 column=node.column,
             )

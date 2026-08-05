@@ -29,6 +29,14 @@ export interface PatternEventJSON {
    * composites. Optional: older payloads predate the field.
    */
   readonly bol_offset?: number;
+  /**
+   * The physical realization chosen for `source_bol`, empty for the default.
+   * Some bols can be struck more than one way (`din` full-handed vs one finger
+   * on the edge) and are recited identically either way, so the choice cannot
+   * come from the audio and travels here instead. Optional: older payloads
+   * predate the field.
+   */
+  readonly variant?: string;
 }
 
 export interface PatternJSON {

@@ -51,6 +51,11 @@ class Event:
     tell "one `tirakita`" from "four strokes that happen to be adjacent" --
     without it, MIDI stamps the word four times and a re-import reads four
     tirakitas where there was one.
+
+    ``variant`` names the physical realization chosen for ``source_bol``, empty
+    for the default. It is here rather than derivable from ``stroke`` because
+    two realizations can share a stroke, and because a kit may later key a
+    sample on `din@full` specifically.
     """
 
     pos: Fraction
@@ -58,6 +63,7 @@ class Event:
     velocity: int = field(default=100, compare=False)
     source_bol: str = field(default="", compare=False)
     bol_offset: int = field(default=0, compare=False)
+    variant: str = field(default="", compare=False)
 
     def __post_init__(self) -> None:
         if not isinstance(self.pos, Fraction):
@@ -163,6 +169,7 @@ class Pattern:
                     "velocity": e.velocity,
                     "source_bol": e.source_bol,
                     "bol_offset": e.bol_offset,
+                    "variant": e.variant,
                 }
                 for e in self.events
             ],
@@ -177,6 +184,7 @@ class Pattern:
                 velocity=int(e.get("velocity", 100)),
                 source_bol=e.get("source_bol", ""),
                 bol_offset=int(e.get("bol_offset", 0)),
+                variant=str(e.get("variant", "")),
             )
             for e in raw.get("events", [])
         )
