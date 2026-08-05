@@ -169,3 +169,43 @@ def test_entries_needing_verification_are_discoverable(lex: Lexicon) -> None:
     """
     names = {bol.name for bol in lex.needs_verification}
     assert "tirakita" in names, "the central mapping is unsourced and must say so"
+
+
+# -- ta / tha / na ----------------------------------------------------------
+
+
+def test_tha_is_its_own_bol_not_an_alias(lex: Lexicon) -> None:
+    """`tha` and `na` share a stroke but are different syllables.
+
+    An alias would canonicalise `tha` to `na`, so a grid where you recited
+    `tha` would display `na` -- showing a syllable that was never said. It
+    also matters for the CTC vocabulary later: `tha` and `na` ARE acoustically
+    distinguishable, so both belong in the label set.
+    """
+    assert lex.resolve("tha").name == "tha"
+    assert lex.resolve("na").name == "na"
+    assert lex.strokes_for("tha") == ("na",)
+    assert lex.strokes_for("na") == ("na",)
+
+
+def test_ta_is_a_distinct_stroke_from_na(vocab: Vocabulary) -> None:
+    """The old `verify` note speculated ta and na might be one stroke. They are not."""
+    assert "ta" in vocab
+    assert vocab["ta"].verify is False
+    assert vocab["ta"] != vocab["na"]
+
+
+def test_tha_and_na_keep_their_own_source_bol_through_the_grid() -> None:
+    """Two bols, one stroke. The syllable you recited survives to the Event.
+
+    This is the payoff of not aliasing: the sampler fires the same `na` sample
+    for both, but the grid and any future transcription still say which was said.
+    """
+    from bolbox.format import parse
+    from bolbox.grid import grid
+
+    pattern = grid(parse(
+        "tal: tintal\nlay: 120\n\ntha na - - | - - - - | - - - - | - - - -\n"
+    ))
+    assert [e.source_bol for e in pattern.events[:2]] == ["tha", "na"]
+    assert [e.stroke for e in pattern.events[:2]] == ["na", "na"]

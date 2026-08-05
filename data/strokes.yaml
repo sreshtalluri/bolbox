@@ -64,12 +64,10 @@ strokes:
   ta:
     drum: dayan
     damped: false
-    verify: true
     description: >
-      VERIFY -- in much practice `ta` and `na` are the same physical stroke and
-      the choice of syllable is contextual. Kept distinct here so the notation
-      round-trips exactly. If they are one stroke for you, delete this entry and
-      add `ta: {alias_of: na}` to the lexicon.
+      Struck dayan stroke, distinct from `na`. An earlier note here guessed
+      that `ta` and `na` might be one physical stroke; they are not. The bol
+      `tha` is the one that shares `na`'s stroke, and it lives in the lexicon.
 
   te:
     drum: dayan

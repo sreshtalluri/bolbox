@@ -29,11 +29,19 @@ version: 1
 bols:
 
   # --- simple: one syllable, one stroke -----------------------------------
+  #
+  # `tha` and `na` are two bols sharing one physical stroke. That is legal and
+  # deliberate: the alias table holds alternate SPELLINGS (`ghe` for `ge`), and
+  # `tha` is not a spelling of `na` -- it is a different spoken syllable. An
+  # alias would canonicalise it away, so a grid would show `na` where you
+  # recited `tha`, and the CTC label set would lose a distinction the audio
+  # genuinely carries.
 
   ge:   { strokes: [ge] }
   ka:   { strokes: [ka] }
   na:   { strokes: [na] }
   ta:   { strokes: [ta] }
+  tha:  { strokes: [na] }
   ti:   { strokes: [ti] }
   tin:  { strokes: [tin] }
   tun:  { strokes: [tun] }
