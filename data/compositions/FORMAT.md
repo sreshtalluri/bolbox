@@ -34,7 +34,7 @@ at the first blank line or the first line that is not `key: value`.
 | `tal` | **yes** | Metric cycle. v1 accepts `tintal` only. |
 | `lay` | no | Tempo in **matras per minute**. Default 60. The UI slider overrides it at playback without editing the file. |
 | `title` | no | Free text. |
-| `gharana` | no | Free text. Informs which lexicon variant to prefer, once variants exist. |
+| `gharana` | no | Free text. Reserved: will select a default variant set. Not yet implemented. |
 | `source` | no | Free text. Where you learned it. Worth filling in. |
 
 `tal` is required even though v1 supports exactly one tal. It costs four
@@ -88,6 +88,26 @@ actually use belongs in `data/lexicon.yaml`. Adding one is a single line.
 
 If no known bol starts at some position, parsing fails with the line, the
 column, and the offending substring. Characters are never dropped.
+
+### Variants
+
+Some bols have more than one physical realization. `din` is struck full-handed
+or with one finger on the edge, and it is recited identically either way — so
+the recitation cannot tell you which, and neither can any transcription model.
+Pick one explicitly with `@`:
+
+```
+din          the default realization, from data/lexicon.yaml
+din@full     a named non-default realization
+din@full!    composes with accents; the accent stays outermost
+```
+
+The suffix binds to the bol immediately before it, so in a multi-bol token
+`din@fullge` is `din` (full) followed by `ge` (default).
+
+An unknown variant name is a parse error at the column you typed it. It never
+falls back to the default — a typo that silently played the default would be
+invisible.
 
 ### Composite bols
 

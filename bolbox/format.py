@@ -30,7 +30,7 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from pathlib import Path
 
-from .errors import ParseError, TokenizeError
+from .errors import LexiconError, ParseError, TokenizeError
 from .lexicon import Lexicon
 from .tal import Tal, UnknownTalError, get_tal
 
@@ -40,7 +40,11 @@ ACCENT_SUFFIXES = {"!": "accent", ".": "ghost"}
 DEFAULT_LAY = 60.0
 
 _HEADER_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_-]*)\s*:\s*(.*)$")
-_WORD_RE = re.compile(r"[A-Za-z]+")
+# `@` is part of a bol token: it introduces a variant selector (`din@full`).
+# Segmenting it is the tokenizer's job -- the parser only has to not stop here,
+# which is why this stays permissive rather than encoding the `bol@variant`
+# shape twice.
+_WORD_RE = re.compile(r"[A-Za-z@]+")
 _INT_RE = re.compile(r"[0-9]+")
 
 
@@ -502,5 +506,9 @@ def _parse_token(
             column,
             word,
         ) from exc
+    except LexiconError as exc:
+        # An unknown @variant. Positioned like any other bol error rather than
+        # escaping as a 500 from the server's generic handler.
+        raise ParseError(str(exc), line_no, column, word) from exc
 
     return Token(text=word, accent=accent, line=line_no, column=column), index
