@@ -100,9 +100,12 @@ accurate one. Everything in this document describes it.
 hear tabla-like sound almost immediately, through a neural audio model (RAVE, or
 the low-latency BRAVE variant) trained on 1-2 hours of clean solo tabla. The
 expressive one: it follows timing and timbre, and does not guarantee that a spoken
-`dha` comes out as a dha stroke. Inspired by Manaswi Mishra's voice-driven work at
-the MIT Media Lab; the specific demo and the earlier planning notes have not been
-located.
+`dha` comes out as a dha stroke. Inspired by Manaswi Mishra's work at the MIT
+Media Lab (https://www.youtube.com/watch?v=VJHuIgLQx9Q): a "tiny" AI trained on
+1-2 hours of percussion recordings, in "just the language and timbres of one small
+dataset", built to help performers express rather than to be correct. The video
+does not name the model, so RAVE/BRAVE is an inference. The earlier planning notes
+for this idea have not been located.
 
 What they share: tabla audio and an ear for it. What they do not share: model,
 training data (labelled speech vs unlabelled drum audio), or runtime. Project 2
