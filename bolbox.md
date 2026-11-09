@@ -82,6 +82,32 @@ Is this a composition tool or a padhant practice tool?
 
 This changes UI, evaluation metric, and arguably the name. Decide before building past the recording tool.
 
+## Two projects, decided 2026-11-09
+
+These are separate ideas that share a subject, not two versions of one system.
+
+**1. bolbox (this repo): speak bols, get notation.** Recited bols are transcribed
+into the composition format with tal and grid, then played back or exported. The
+accurate one. Everything in this document describes it.
+
+- Data: own voice plus the IIT Bombay Tabla Bol Recitation Dataset (non-commercial
+  research licence) to start. Friends later, first as held-out test speakers.
+- Speaker independence is an eventual goal, no longer a permanent non-goal. v1
+  still ships single-speaker; every take is tagged with its speaker so the split
+  is possible later.
+
+**2. Voice-to-tabla instrument (not started, no code here).** Speak or beatbox and
+hear tabla-like sound almost immediately, through a neural audio model (RAVE, or
+the low-latency BRAVE variant) trained on 1-2 hours of clean solo tabla. The
+expressive one: it follows timing and timbre, and does not guarantee that a spoken
+`dha` comes out as a dha stroke. Inspired by Manaswi Mishra's voice-driven work at
+the MIT Media Lab; the specific demo and the earlier planning notes have not been
+located.
+
+What they share: tabla audio and an ear for it. What they do not share: model,
+training data (labelled speech vs unlabelled drum audio), or runtime. Project 2
+should live in its own repo.
+
 ## Roadmap
 
 1. Recording and notation tool. Record utterance, paste bol text, store the pair. No ML. Start here.
