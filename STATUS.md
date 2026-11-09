@@ -100,8 +100,10 @@ The real gate is narrower. It covers only cases where the *spoken word itself*
 could be mislabeled:
 
 1. **Is the syllable you say in the lexicon at all?** `traka`, which you asked about
-   for 1c, is **not in `data/lexicon.yaml`**. [Certain] Neither is `dhage`, `tirkita`
-   as you might say it, or any bol from a composition you have not typed in yet.
+   for 1c, is **not in `data/lexicon.yaml`**. [Certain] Neither are `kran`, `dhet`,
+   or the spelling `tirkita`. All three fail to tokenize today. (`dhage` is fine:
+   it splits into `dha ge`.) The same goes for any bol from a composition you have
+   not typed in yet.
    A label containing it fails to tokenize, and the 1b tool refuses to save it.
    Add it before you label clips that contain it.
 2. **Spoken-unit identity for the CTC targets** (the next section). This one *does*
@@ -177,3 +179,16 @@ that target.
    `bolbox label` (step 1b). Watch the coverage report until it shows the floors above.
 4. Decide the CTC-unit question in §5.
 5. Then 1c.
+
+---
+
+## Update: 1b done (labeling tool)
+
+`python -m bolbox label --import DIR` imports takes and serves `/label`. See
+README → "Labeling recordings". It includes capture-plan Tasks 1–2 (store and
+endpoints). It does **not** include Tasks 3–4 (in-browser mic capture and the
+IndexedDB buffer). Record with any app and import the files.
+
+Pre-labeling is heuristic because there is no model. It works from onsets plus
+the previous take and the corpus. When a CTC model exists, it replaces the draft
+source in `prelabel()` (`bolbox/server.py`) and nothing else changes.

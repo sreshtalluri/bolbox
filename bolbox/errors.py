@@ -71,3 +71,7 @@ class ParseError(BolboxError):
         location = f"line {line}, column {column}"
         detail = f": {text!r}" if text else ""
         super().__init__(f"{location}: {message}{detail}")
+
+
+class RecordingError(BolboxError):
+    """A recording could not be stored, found, or read."""

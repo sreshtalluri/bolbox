@@ -8,3 +8,7 @@ dist/
 .DS_Store
 node_modules/
 .cache/
+
+# Recorded padhant. Audio is not source, and it is the one artifact that
+# cannot be regenerated: back it up, do not commit it.
+data/recordings/

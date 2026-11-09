@@ -218,3 +218,120 @@ def test_vocabulary_exposes_variants() -> None:
 def test_vocabulary_lists_tha_and_na_separately() -> None:
     names = [b["name"] for b in client.get("/api/vocabulary").json()["bols"]]
     assert "tha" in names and "na" in names
+
+
+# -- recordings and labeling ------------------------------------------------
+
+import json as _json
+
+import numpy as _np
+
+from bolbox import server as _server
+from bolbox.audio import encode_wav16
+from bolbox.recordings import RecordingStore
+
+
+@pytest.fixture
+def recordings(tmp_path, monkeypatch) -> RecordingStore:
+    store = RecordingStore(tmp_path / "recordings")
+    monkeypatch.setattr(_server, "_RECORDINGS", store)
+    return store
+
+
+def _wav(seconds: float = 1.0, rate: int = 16000) -> bytes:
+    rng = _np.random.default_rng(0)
+    x = rng.normal(0, 0.001, int(seconds * rate))
+    for t in (0.2, 0.5, 0.8):
+        i = int(t * rate)
+        n = int(0.05 * rate)
+        x[i : i + n] += 0.4 * _np.sin(_np.arange(n) * 0.2) * _np.exp(-_np.arange(n) / (0.01 * rate))
+    return encode_wav16(x, rate)
+
+
+def _post(bols: str = "") -> dict:
+    res = client.post(
+        "/api/recordings",
+        files={"audio": ("take.wav", io.BytesIO(_wav()), "audio/wav")},
+        data={"meta": _json.dumps({"duration_sec": 1.0, "sample_rate": 16000, "bols": bols})},
+    )
+    assert res.status_code == 200, res.text
+    return res.json()
+
+
+def test_post_list_serve_and_delete(recordings) -> None:
+    body = _post()
+    listed = client.get("/api/recordings").json()["recordings"]
+    assert [r["id"] for r in listed] == [body["id"]]
+    assert client.get(f"/api/recordings/{body['id']}/file").content[:4] == b"RIFF"
+    assert client.delete(f"/api/recordings/{body['id']}").status_code == 200
+    assert client.get(f"/api/recordings/{body['id']}").status_code == 422
+
+
+def test_patch_refuses_a_label_that_does_not_tokenize(recordings) -> None:
+    body = _post()
+    res = client.patch(f"/api/recordings/{body['id']}", json={"bols": "dha traka"})
+    assert res.status_code == 422
+    assert res.json()["token"] == "traka"
+    assert recordings.get(body["id"]).bols == "", "nothing was written"
+    ok = client.patch(f"/api/recordings/{body['id']}", json={"bols": "dha tirakita"})
+    assert ok.status_code == 200 and ok.json()["bols"] == "dha tirakita"
+
+
+@pytest.mark.parametrize("bad", ["..%2F..%2Fetc%2Fpasswd", "..", "not-an-id"])
+def test_traversal_ids_are_refused(recordings, bad: str) -> None:
+    assert client.get(f"/api/recordings/{bad}").status_code in (404, 422)
+    assert client.get(f"/api/recordings/{bad}/file").status_code in (404, 422)
+
+
+def test_label_check_reports_units_or_a_column(recordings) -> None:
+    ok = client.post("/api/labels/check", json={"text": "dha tirakita"}).json()
+    assert ok["ok"] and ok["units"] == ["dha", "te", "re", "ki", "ta"] and ok["slots"] == 5
+    bad = client.post("/api/labels/check", json={"text": "dha xyz"}).json()
+    assert not bad["ok"] and bad["column"] == 4
+
+
+def test_prelabel_drafts_from_the_previous_take(recordings) -> None:
+    first = _post("dha dhin dhin dha")
+    second = _post()
+    # Same-second ids sort randomly; pin queue order explicitly.
+    recordings.update(first["id"], {})
+    for rid, when in ((first["id"], "2026-01-01T00:00:00Z"), (second["id"], "2026-01-01T00:00:10Z")):
+        path = recordings.root / f"{rid}.json"
+        raw = _json.loads(path.read_text())
+        raw["recorded_at"] = when
+        path.write_text(_json.dumps(raw))
+
+    pre = client.get(f"/api/recordings/{second['id']}/prelabel").json()
+    assert pre["draft"] == "dha dhin dhin dha"
+    assert pre["draft_source"].startswith("take")
+    assert pre["onset_count"] == 3
+    assert len(pre["onsets"]) == 3
+    # The corpus is offered too, for cycling.
+    assert any(c["source"].endswith(".txt") for c in pre["candidates"])
+
+
+def test_prelabel_keeps_a_saved_label(recordings) -> None:
+    body = _post("na tin")
+    assert client.get(f"/api/recordings/{body['id']}/prelabel").json()["draft"] == "na tin"
+
+
+def test_dataset_and_label_page(recordings) -> None:
+    _post("dha tirakita")
+    d = client.get("/api/dataset").json()
+    assert d["labelled"] == 1 and d["compounds"]["tirakita"] == 1
+    page = client.get("/label")
+    assert page.status_code == 200 and "bolbox label" in page.text
+    assert client.get("/label/core.js").status_code == 200
+
+
+def test_prelabel_does_not_carry_a_label_into_a_different_length_clip(recordings) -> None:
+    short = _post("na tin na")
+    theka = _post("dha dhin dhin dha | dha dhin dhin dha | dha tin tin ta | ta dhin dhin dha")
+    new = _post()  # three onsets: the sixteen-bol theka just before it cannot be right
+    for i, rid in enumerate((short["id"], theka["id"], new["id"])):
+        path = recordings.root / f"{rid}.json"
+        raw = _json.loads(path.read_text())
+        raw["recorded_at"] = f"2026-01-01T00:00:0{i}Z"
+        path.write_text(_json.dumps(raw))
+    pre = client.get(f"/api/recordings/{new['id']}/prelabel").json()
+    assert pre["draft"] == "na tin na"

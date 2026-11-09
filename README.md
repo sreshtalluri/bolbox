@@ -37,6 +37,30 @@ python -m bolbox serve
 
 ---
 
+## Labeling recordings
+
+```bash
+python -m bolbox label --import ~/path/to/takes   # copy takes in (any format ffmpeg reads), then serve
+open http://127.0.0.1:8000/label
+python -m bolbox dataset --manifest data/manifest.jsonl   # coverage + one JSON line per trainable take
+```
+
+- Each take becomes `data/recordings/<id>.wav` + `<id>.json`. The `bols` field is the
+  text you recited (`tirakita`, not its strokes). CTC targets are derived from it at
+  training time by `bolbox.dataset.ctc_targets`.
+- If `take.txt` sits next to `take.wav` on import, that text becomes the label.
+- Re-importing a folder is safe: files already imported are skipped by hash.
+- `BOLBOX_RECORDINGS=/some/backed-up/dir` moves the store out of the repo.
+- The page pre-fills a draft: the take's saved label, else the previous take's label
+  if its length fits the detected syllable count (tempo triples), else the closest
+  corpus line. Onset ticks on the waveform carry the label's syllables, so a wrong
+  count is visible at a glance.
+- Keys: **Enter** save and next, **Esc** replay, **Tab** accept completion,
+  **Alt+↓** next draft, **Alt+→** next without saving, **Alt+X** bad take,
+  **Alt+S** 0.7× speed. The full list is on the page.
+
+---
+
 ## Writing a composition
 
 ```

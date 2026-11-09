@@ -4,6 +4,8 @@
     python -m bolbox render  data/compositions/theka-tintal.txt -o theka.mid
     python -m bolbox show    data/compositions/theka-tintal.txt
     python -m bolbox serve
+    python -m bolbox label   [--import DIR]   # label recordings in the browser
+    python -m bolbox dataset [--manifest OUT.jsonl]
 
 `check` exists so a composition can be validated without producing anything --
 useful while typing a corpus, and the obvious thing to run in CI over
@@ -96,6 +98,53 @@ def cmd_show(args: argparse.Namespace) -> int:
     return 0
 
 
+def _store():
+    from .recordings import RecordingStore
+    from .server import RECORDINGS_DIR
+
+    return RecordingStore(RECORDINGS_DIR)
+
+
+def cmd_label(args: argparse.Namespace) -> int:
+    """Import recordings (optional), then serve the labeling page."""
+    if args.import_dir:
+        from .dataset import import_directory
+
+        directory = Path(args.import_dir).expanduser()
+        if not directory.is_dir():
+            print(f"error: {directory} is not a directory", file=sys.stderr)
+            return 1
+        result = import_directory(directory, _store(), _load(), speaker=args.speaker)
+        labelled = sum(1 for m in result.imported if m.labelled)
+        print(
+            f"imported {len(result.imported)} take(s) "
+            f"({labelled} with a label from a matching .txt), "
+            f"{len(result.duplicates)} already imported, {len(result.failed)} failed"
+        )
+        for name, why in result.failed:
+            print(f"  failed: {name}: {why}", file=sys.stderr)
+    if args.no_serve:
+        return 0
+    print(f"labeling page: http://127.0.0.1:{args.port}/label")
+    from .server import main
+
+    main(port=args.port)
+    return 0
+
+
+def cmd_dataset(args: argparse.Namespace) -> int:
+    from .dataset import coverage, format_coverage, manifest_rows, write_manifest
+
+    lexicon = _load()
+    store = _store()
+    print(format_coverage(coverage(store, lexicon), lexicon))
+    if args.manifest:
+        rows = manifest_rows(store, lexicon)
+        write_manifest(rows, Path(args.manifest))
+        print(f"\nwrote {len(rows)} row(s) to {args.manifest}")
+    return 0
+
+
 def cmd_serve(_args: argparse.Namespace) -> int:
     from .server import main
 
@@ -124,6 +173,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     serve = sub.add_parser("serve", help="run the local server")
     serve.set_defaults(func=cmd_serve)
+
+    label = sub.add_parser("label", help="label recordings in the browser")
+    label.add_argument("--import", dest="import_dir", metavar="DIR",
+                       help="copy audio files from DIR into data/recordings first")
+    label.add_argument("--speaker", default="self",
+                       help="speaker tag for imported takes (default: self)")
+    label.add_argument("--port", type=int, default=8000)
+    label.add_argument("--no-serve", action="store_true",
+                       help="import only, do not start the server")
+    label.set_defaults(func=cmd_label)
+
+    dataset = sub.add_parser("dataset", help="coverage report and training manifest")
+    dataset.add_argument("--manifest", metavar="OUT",
+                         help="write one JSON line per trainable take")
+    dataset.set_defaults(func=cmd_dataset)
 
     return parser
 
